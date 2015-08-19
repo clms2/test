@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript" src="ZeroClipboard.js"></script>
+</head>
+<body>
+	<input type="text" value="这是被复制的内容" id="copy" /> <input type="button" id="btn" value="复制" >
+	<script type="text/javascript">
+	copy(btn,document.getElementById('copy').value);
+	function copy(clickobj,val){	
+		//ZeroClipboard.setMoviePath('ZeroClipboard.swf');如果你不想在js文件中更改路径就打开注释
+		var clip = new ZeroClipboard.Client();	
+		clip.setHandCursor(true);	
+		clip.addEventListener('mouseOver', function(client){
+		clip.setText(val);
+		});  	
+		clip.addEventListener('complete', function(client, text){
+		    alert("内容已复制，可使用Ctrl+V 粘贴。");
+		});
+		clip.glue(clickobj);
+	}
+	</script>
+</body>
+</html>
+
