@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>Document</title>
+	<script src="jq.js"></script>
+</head>
+<body>
+	<style>
+	body{text-align: center;width: 800px;margin: 0 auto;padding-top: 70px;}
+	ul,div,li{list-style: none;padding: 0;margin: 0}
+
+	#pic{position: relative;width: 750px;height: 500px;}
+	#pic li{display: none;position: absolute;width: 750px;height: 500px;}
+	#pic li.in{display: block;}
+	</style>
+
+	<div id="pic">
+		<img src="img/01.jpg" alt="" />
+	</div>
+	<script>
+	var w = 50, h = 50;//小图宽高
+
+	$("img")[0].onload = function(){
+		var box = $("#pic"), 
+		img = box.children('img'), 
+		imgw = img.width(), 
+		imgh = img.height(), 
+		src = img.attr('src');
+		var xnum = imgw/w, 
+			ynum = imgh/h;
+
+		//生成小正方形
+		var i = j = templeft = temptop = 0, 
+			templi = cls = where = '';
+		//外层循环控制行数
+		for (; i < ynum; i++){
+			cls = i%2 == 0 ? 'odd' : 'even';
+			templi += '<ul class="'+cls+'">';
+			//小正方形个数
+			for(; j < xnum; j++){
+				templeft = j*w;
+				temptop = i*h;
+				where = cls == 'odd' ? 'left' : 'right';
+				templi += '<li style="background-position:-'+templeft+'px -'+temptop+'px;'+where+':0;top:'+temptop+'px"></li>';
+			}
+			j = 0;
+
+			templi += '</ul>';
+		}
+		$(templi).appendTo(box).children('li').css({width:w, height:h, 'background-repeat':'no-repeat','background-image':'url("'+src+'")'}).show();
+		img.hide();
+
+		//动画
+		box.children('.odd').each(function(index){
+			var last = xnum - 1;
+			eval("var f1"+index+" = function(){\
+				box.children('.odd').eq(index).children('li').eq(last).animate({left:last*w});\
+				if(--last != 0) setTimeout(f1"+index+", 50);\
+			};f1"+index+"();");
+		});
+		box.children('.even').each(function(index){
+			var last = 0;
+			eval("var f2"+index+" = function(){\
+				box.children('.even').eq(index).children('li').eq(last).animate({right:(xnum-last-1)*w});\
+				if(++last != (xnum-1)) setTimeout(f2"+index+", 50);\
+			};f2"+index+"();");
+		});
+	}
+	</script>
+</body>
+</html>

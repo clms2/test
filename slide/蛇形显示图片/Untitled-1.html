@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+</head>
+
+<body>
+
+<div id="div1" style="position:relative;"></div>
+
+<script type="text/javascript">
+
+window.onload = function(){
+	var odiv = document.getElementById('div1');
+	var len = 100;
+	var str = '';
+	var iNow = 0;
+	var timer = null;
+	var col = 0;
+	for(var i = 0; i < 100; i++)
+	{
+		if(i != 0 && i % 10 == 0){col++;}
+		if(col%2 == 0){
+			var left = (9 - (i % 10)) * 50;
+			console.log((i % 10));
+		}else{
+			var left = (i %10) * 50;
+		}
+		if(i%10==0)
+		{
+			var top = (i * 50)/10;
+		}
+		str += '<div style = "position:absolute; opacity:0; width:50px; height:50px; background:url(1.jpg) -'+left+'px -'+top+'px no-repeat; left:'+left+'px; top:'+top+'px"></div>'
+	}
+	odiv.innerHTML = str;
+	var adiv = odiv.getElementsByTagName('div');
+	timer = setInterval(function(){
+		
+		if(iNow >= len) //iNow从0开始++    len是100
+		{
+			clearInterval(timer);
+		}
+		else
+		{
+			adiv[iNow].style.opacity = 1;
+			iNow++;
+		}
+	},30)
+	
+}
+
+</script>
+</body>
+</html>

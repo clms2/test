@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>Document</title>
+	<script src="jq.js"></script>
+	<!--<script src="jquery.easing.js"></script>-->
+	<!--<script src="slide.js"></script>-->
+	<script src="jquery.slide.dev.js"></script>
+<style>
+	body{text-align: center;width: 800px;margin: 0 auto;padding-top: 70px;}
+	ul,div,li{list-style: none;padding: 0;margin: 0}
+
+	.pics{padding-right: 0;overflow: hidden;float: left;}
+	.pics li{margin-bottom: 20px;height: 150px;width: 250px;background: #eee;text-align: center;font:16px/150px 'Microsoft Yahei';margin-right: 20px;}
+	#next,#prev,#prev2,#next2{cursor: pointer;width: 100px;height: 30px;line-height: 30px;background: #aaa;float: left;margin-right: 20px;float: left;margin-top: 20px;}
+	.wrap_div{margin: 0 auto;}
+	#ctl{padding-right: 50px;float: left;}
+	#ctl li{float: left;width: 20px;height: 20px;margin-right: 5px;background: #3aab52;font:12px/20px 'Arial'; color: #fff;cursor: pointer;}
+	#ctl li.in{color: #e4ff00}
+
+	#pics2{margin-top:40px;}
+	#pics2 li{margin-bottom: 20px;height: 150px;width: 250px;background: #eee;text-align: center;font:16px/150px 'Microsoft Yahei';margin-right: 20px;}
+
+	#pic3{padding-bottom: 30px;float: left;position: relative;width: 750px;height: 500px;}
+	#pic3 li{display: none;float: left;position: absolute;left: 0;top: 0;width: 750px;height: 500px;}
+	#pic3 li.in{display: block;}
+	#pic3 div{position: absolute;}
+</style>
+</head>
+<body>
+
+<div id="pic3">
+	<ul>
+		<li class="in">
+			<img src="img/01.jpg" alt="" />
+		</li>
+		<li>
+			<img src="img/02.jpg" alt="" />
+		</li>
+		<li>
+			<img src="img/03.jpg" alt="" />
+		</li>
+		<li>
+			<img src="img/04.jpg" alt="" />
+		</li>
+	</ul>
+</div>
+<script>
+	$("img:last")[0].onload = function(){
+		$("#pic3 li").sliceChange();
+	}
+</script>
+
+
+<!-- 切换 -->
+<div id="pics" class="pics">
+	<ul>
+		<li>0</li>
+		<li>1</li>
+		<li>2</li>
+		<li>3</li>
+		<li>4</li>
+		<li>5</li>
+		<li>6</li>
+
+	</ul>
+</div>
+<div id="ctl">
+	<ul>
+	</ul>
+</div>
+<div id="prev">prev</div>
+<div id="next">next</div>
+<script type="text/javascript">
+	$("#pics ul").slide({
+		pos:'left',
+		showNum:2,
+		prev:$("#prev"),
+		next:$("#next"),
+		control:$("#ctl ul"),
+		interval:2000
+	});	
+</script>
+
+<hr style="clear:both" />
+<!-- 无缝滚 -->
+<div id="prev2">prev</div>
+<div id="pics2" class="pics">
+	<ul>
+		<li>1</li>
+		<li>2</li>
+		<li>3</li>
+		<li>4</li>
+	</ul>
+</div>
+<div id="next2">next</div>
+<script>
+$("#pics2 ul").nslide({
+	pos:'left',
+	prev:$("#prev2"),
+	next:$("#next2")
+});
+
+</script>
+
+</body>
+</html>
