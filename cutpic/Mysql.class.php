@@ -52,7 +52,7 @@ class Mysql {
    	 * @return [type]        [description]
    	 */
 	function lock($table, $type = 'WRITE' ) {
-	    $this->query( "LOCK TABLE `{$this->pre}{$table}` {$type}" );
+		$this->query( "LOCK TABLE `{$this->pre}{$table}` {$type}" );
 	}
     
     /**
@@ -60,7 +60,7 @@ class Mysql {
      */
     function unlock() {
 		$this->query( "UNLOCK TABLES" );
-    }
+	}
 	
 	/**
 	 * 返回数组
