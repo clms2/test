@@ -1,30 +1,33 @@
 <?php
+/**
+ * mysqli class
+ */
 class Mysql {
 	public $link_id;
 	public $debug = 0;
 	public $lastsql; //最后次查询的sql语句
-	public $pre;
+	protected $dbname;
+	protected $pre;
 	// static $instance;
 	
-
 	function __construct($cfg) {
-		if(!isset($cfg['linkid'])){
-			$this->link_id = mysqli_connect($cfg['dbhost'], $cfg['dbuser'], $cfg['dbpass']) or die('connect to database failed.');
-			mysqli_select_db($this->link_id, $cfg['dbname']);
-			mysqli_query($this->link_id, "set names '{$cfg['dbcharset']}'");
-		}else{
-			$this->link_id = $cfg['linkid'];
-		}
-		$this->pre = $cfg['databasePrefix'];
+		if(empty($cfg['charset'])) $cfg['charset'] = 'utf8';
+		if(empty($cfg['pre'])) $cfg['pre'] = '';
+		if(empty($cfg['dbport'])) $cfg['dbport'] = '3306';
+
+		$this->link_id = mysqli_connect($cfg['dbhost'], $cfg['dbuser'], $cfg['dbpwd'], $cfg['dbname'], $cfg['dbport']) or die('connect to database failed.');
+		mysqli_query($this->link_id, "set names '{$cfg['charset']}'");
+		$this->dbname  = $cfg['dbname'];
+		$this->pre     = $cfg['pre'];
 	}
-	
+
 	/*function getInstance($cfg = array()){
 		if(!self::$instance instanceof self){
-			self::$instance = new self($cfg['dbhost'], $cfg['dbuser'], $cfg['dbpass'], $cfg['databasePrefix'], $cfg['dbcharset']);
+			self::$instance = new self($cfg['dbhost'], $cfg['dbuser'], $cfg['dbpwd'], $cfg['pre'], $cfg['charset']);
 		}
 		return self::$instance;
 	}*/
-	
+
 	/**
 	 * 执行一条sql语句
 	 *
@@ -37,6 +40,27 @@ class Mysql {
 		if (!($res = mysqli_query($this->link_id, $sql))) return false;
 		return $res;
 	}
+
+	/**
+   	 * 加锁
+   	 * @param  string $table 表名
+   	 * @param  string $type  WRITE READ
+   	 * WRITE
+   	 * 除了当前用户被允许读取和修改被锁表外，其他用户的所有访问被完全阻止。一个 WRITE 写锁被执行仅当所有其他锁取消时。
+   	 * READ
+   	 * 所有的用户只能读取被锁表，不能对表进行修改（包括执行 LOCK 的用户），当表不存在 WRITE 写锁时 READ 读锁被执行。
+   	 * @return [type]        [description]
+   	 */
+	function lock($table, $type = 'WRITE' ) {
+	    $this->query( "LOCK TABLE `{$this->pre}{$table}` {$type}" );
+	}
+    
+    /**
+     * 解锁
+     */
+    function unlock() {
+		$this->query( "UNLOCK TABLES" );
+    }
 	
 	/**
 	 * 返回数组
@@ -45,10 +69,10 @@ class Mysql {
 	 * @return array            结果数组
 	 */
 	function getArr($sql, $onefield = false) {
-		$ret = array ();
+		$ret  = array ();
 		$func = $onefield ? 'mysqli_fetch_row' : 'mysqli_fetch_assoc';
-		if ($res = mysqli_query($this->link_id, $sql)) {
-			while ( ($row = $func($res)) !== false ) {
+		if ($res = $this->query($sql)) {
+			while ( ($row = $func($res)) !== null ) {
 				$ret[] = $onefield ? $row[0] : $row;
 			}
 		}
@@ -73,12 +97,12 @@ class Mysql {
      * @param string $where
      * @return string
      */
-	function getField($table, $field, $where = '') {
+	function getOneField($table, $field, $where = '') {
 		$where = $where ? "where {$where}" : '';
-		$sql = "select `{$field}` from `{$this->pre}{$table}` {$where}";
+		$sql   = "select `{$field}` from `{$this->pre}{$table}` {$where}";
 		if (!($res = $this->query($sql))) return '';
 		$row = mysqli_fetch_row($res);
-		return empty($row[0]) ? '' : $row[0];
+		return $row[0];
 	}
 	
 	/**
@@ -88,16 +112,7 @@ class Mysql {
      * @return int
      */
 	function getRowNum($table, $condition = '') {
-		$condition = strtolower($condition);
-		if(strpos($condition, 'group by') !== false){
-			preg_match('#group by\s+(.*)[\b]?$#is', $condition,$field);
-			$field = $field[1];
-			$sql = "SELECT COUNT(*) FROM  (
-				SELECT COUNT(*) FROM `{$this->pre}{$table}` GROUP BY {$field} 
-				)a";
-		}else{
-			$sql = "select count(*) from `{$this->pre}{$table}` {$condition}";
-		}
+		$sql = "select count(*) from {$table} {$condition}";
 		if (!($res = $this->query($sql))) return 0;
 		$row = mysqli_fetch_row($res);
 		return isset($row[0]) ? $row[0] : 0;
@@ -107,28 +122,24 @@ class Mysql {
 	 * 获取关联数组形式的结果集,
 	 *
 	 * @param string $table
-	 * @param string $condition 完整语句 where id in() 
+	 * @param string $where 
 	 * @param string $field 需要的字段，默认全部
 	 * @param string $limit 默认返回:array(0=>array([$k]=>[$v])),如果为true返回:array([$k]=>[$v])
 	 * @return array
 	 */
-	function getAssoc($table, $condition = '', $field = '', $limit = '') {
-		$field = empty($field) ? '*' : $this->safe_field($field);
+	function getAssoc($table, $where = '', $field = '', $limit = '') {
+		$field = !empty($field) ? $this->safe_field($field) : '*';
+		$where = !empty($where) ? "where {$where}" : $where;
 		
-		$sql = "select {$field} from {$this->pre}{$table} {$condition}";
-		$arr = $this->getAssocBySql($sql);
-		return $limit ? (isset($arr[0]) ? $arr[0] : array()) : $arr;
-	}
-
-	function getAssocBySql($sql){
+		$sql = "select {$field} from {$this->pre}{$table} {$where}";
 		$arr = array ();
-		if (!($res = $this->query($sql))) return $arr;
+		if (!($res = $this->query($sql))) return false;
 		while ( ($rs = mysqli_fetch_assoc($res)) !== null ) {
 			$arr[] = $rs;
 		}
-		return $arr;
+		return $limit ? (isset($arr[0]) ? $arr[0] : '') : $arr;
 	}
-
+	
 	/**
      * 获取一列组成1维数组
      * @param string $table
@@ -138,12 +149,12 @@ class Mysql {
      */
 	function getCols($table, $colName, $where = '') {
 		empty($where) or $where = "where {$where}";
-		$sql = "select {$colName} from `{$this->pre}{$table}` {$where}";
+		$sql = "select {$colName} from {$this->pre}{$table} {$where}";
 		if (!($res = $this->query($sql))) return '';
 		while ( ($row = mysqli_fetch_row($res)) !== null ) {
 			$arr[] = $row[0];
 		}
-		return !empty($arr) ? $arr : array();
+		return !empty($arr) ? $arr : '';
 	}
 	
 	/**
@@ -153,8 +164,7 @@ class Mysql {
      * @param string $field 需要的字段，默认全部
      * @return array/false
      */
-	function getOneAssoc($table, $where = '', $field = '') {
-		$where = empty($where) ? '' : "where {$where}";
+	function getOneAssoc($table, $where, $field = '') {
 		return $this->getAssoc($table, "{$where} limit 1", $field, 1);
 	}
 	
@@ -180,9 +190,9 @@ class Mysql {
 			}
 			$set[] = "`{$k}`=" . $v;
 		}
-		$set = implode(',', $set);
+		$set   = implode(',', $set);
 		$where = !empty($where) ? "where {$where}" : '';
-		$sql = "update `{$this->pre}{$table}` set {$set} {$where}";
+		$sql   = "update `{$this->pre}{$table}` set {$set} {$where}";
 		return $this->affectedRow($sql);
 	}
 	
@@ -205,7 +215,7 @@ class Mysql {
 		$keys = implode(',', $keys);
 		$values = implode(',', $values);
 		$sql = "insert into `{$this->pre}{$table}`({$keys}) values({$values})";
-		return $this->query($sql) ? $this->last_id() : 0;
+		return $this->affectedRow($sql);
 	}
 	
 	/**
@@ -218,38 +228,33 @@ class Mysql {
 		$sql = "delete from `{$this->pre}{$table}` where {$where}";
 		return $this->affectedRow($sql);
 	}
+
+	/**
+	 * 是否存在
+	 * @param  string $table 
+	 * @param  string $where 
+	 * @return bool
+	 */
+	function exists($table, $where){
+		$where = "where {$where}";
+		return $this->getRowNum($this->pre . $table, $where) > 0 ? true : false;
+	}
 	
 	/**
-     * 给字段加``
+     * 给字段加`` 带as就不处理
      * @param string $field
      * @return string
      */
 	function safe_field($field) {
+		if(stripos($field, 'as') !== false) return $field;
 		if (!strpos($field, ',')) return "`{$field}`";
-		
 		$temp_arr = explode(',', $field);
 		foreach ( $temp_arr as $k => $v ) {
-			if(strpos($v, '.') !== false){
-				$f = explode('.', $v);
-				if($tf = strchr($f[1], ' ')){
-					$tt = str_replace($tf, '', $f[1]);
-					$f[1] = "`{$tt}` {$tf}";
-				}else{
-					$f[1] = "`{$f[1]}`";
-				}
-				$temp_arr[$k] = "{$f[0]}.{$f[1]}";
-			}else{
-				$temp_arr[$k] = "`{$v}`";
-			}
+			$temp_arr[$k] = "`{$v}`";
 		}
 		return implode(',', $temp_arr);
 	}
 
-	function exists($table, $condition = ''){
-		$condition = !empty($condition) ? "where {$condition}" : '';
-		return $this->getRowNum($table, $condition) != 0;
-	}
-	
 	function error() {
 		return addslashes(mysqli_error($this->link_id));
 	}
