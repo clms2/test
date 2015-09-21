@@ -1,0 +1,7 @@
+js:
+new IdCardUtil().validate(cardno)
+php:
+require 'inc/IdCardUtils.class.php';
+$util = new IdcardUtils();
+$temp = strlen($idcard) == 15 ? $util->idcard_15to18($idcard) : $idcard;
+if(!$util->idcard_checksum18($temp)) exit('-4');
