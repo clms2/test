@@ -1,4 +1,5 @@
 <?php
+header('content-type:text/html;charset=utf-8');
 date_default_timezone_set('PRC');
 //$func = get_extension_funcs('standard');
 //sort($func);
@@ -11,9 +12,10 @@ $expire = time() + $expire_day * 86400;
 if (!isset($_COOKIE['often_func'])) {
     setcookie('often_func', json_encode($func), $expire, '/');
     setcookie('often_func_default', $default['func'], $expire, '/');
+    print_r($func);
 } else {
-    $func = json_decode(stripslashes($_COOKIE['often_func']), 1);
-    $default['func'] = trim(stripslashes($_COOKIE['often_func_default']), '"');
+    $func = json_decode($_COOKIE['often_func'], 1);
+    $default['func'] = trim($_COOKIE['often_func_default'], '"');
 }
 
 $option = $resulttype = '';
@@ -266,15 +268,17 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
 <form action="d.php" method="post" name="form1" id="form1" target="i">
 	<!-- 代码框 -->
 	<textarea class="t" name="code" id='code'></textarea>
+    <!-- <div contentEditable="true" class="t" name="code" id='code'></div> -->
 	<br />
 	<!-- 按钮 -->
 	<div class="input">
 		<input type="button" id="init" value="HTML初始化/清空(ctrl+r)" /> <input type="submit" value="运行(ctrl+enter)" />
+        <input type="button" id="qrcode" value="二维码(ctrl+e)">
 		<!-- 如果设置name属性,用ctrl+enter提交,php获取不到name,而点击提交则可以,不知为啥 -->
 		<input type="button" id="quick" value="ctrl+q=>" /> <select id="func">
-        <?=$option?>
+        <?php echo $option?>
     </select>
-    <?=$resulttype?>
+    <?php echo $resulttype?>
     <!-- 添加常用函数 -->
 		<div class="often">
 			<input type="text" id="often_func" placeholder="常用函数" autocomplete="off" /> <input type="text" id="desc" placeholder="描述(可选)" /> <input type="button" id="dftfunc" value="默认" /> <input type="button" id="addfunc" value="添加" /> <input type="button" id="delfunc" value="删除" />
@@ -310,7 +314,15 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
     "\n<\/html>";
     
     var lastfunc = '';
-    
+    // 组织firefox ctrl+r刷新页面
+    $(document).keypress(function (e) {
+        var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
+        if (e.ctrlKey) {
+            if (k == 114) {
+                e.preventDefault();
+            }
+        }
+    })
     $(document).ready(function(){
         $("#init").click(function(){
             init();
@@ -324,6 +336,11 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
                 //enter
                 if (k == 13) {
                     autosubmit();
+                    e.preventDefault();
+                }
+                // e
+                if(k == 101){
+                    qrcode();
                     e.preventDefault();
                 }
                 //r
@@ -415,7 +432,16 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
         },function(){
             $(this).removeClass('shadow');
         });
+
+        $("#qrcode").click(function() {
+            qrcode();
+        });
     })
+
+    function qrcode(){
+        show_result_div('php');
+        $("#rs").html("<img src='d.php?qrcode=1&code="+$("#code").val()+"'>");
+    }
     
     function autosubmit(){
         if ($("#code").val().indexOf('<html>') > 0) {
@@ -425,6 +451,15 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
             getRs();
         }
         return;
+    }
+
+    function getRs(){
+        show_result_div('php');
+        $.post('d.php', {
+            code: $('#code').val()
+        }, function(data){
+            $('#rs').html('<pre>' + data + '</pre>');
+        });
     }
     
     function setcookie(name,obj_val){
@@ -464,6 +499,7 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
         if (html == '') {
             $("#code").val(str);
             setCursor($('#code'), str.indexOf('/body') - 12);
+            // $("#code").html('<pre>'+str+'</pre>');
         }
         else {
             $("#code").val('').focus();
@@ -505,15 +541,6 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
         var count = 0,i;
         for(i in o) {count++;console.log(o[i])}
         return count;
-    }
-    
-    function getRs(){
-    	show_result_div('php');
-        $.post('d.php', {
-            code: $('#code').val()
-        }, function(data){
-            $('#rs').html('<pre>' + data + '</pre>');
-        });
     }
     
     function setCursor(obj, position){
