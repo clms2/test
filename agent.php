@@ -11,13 +11,14 @@ if(empty($_COOKIE['test'])){
 }
 
 
-$url = isset($_GET['url']) ? $_GET['url'] : '';
+$url = isset($_GET['url']) ? urldecode($_GET['url']) : '';
 
 if(!empty($url)){
 	$urlarr = parse_url($url);
 	$domain = $urlarr['host'];
 	$ct = file_get_contents($url);
 	$ct = str_replace($domain, '', $ct);
-	$js = '<script>(function(){if(typeof jQuery != "function" ) return;$("a").click(function(){});})();</script>';
+	// 相对绝对路径要处理
+	$js = '<script>(function(){if(typeof jQuery != "function" ) return;$("a").click(function(){location.href="?url=http://"+'.$domain.'+encodeURIComponent($(this).attr("src"))});})();</script>';
 
 }
