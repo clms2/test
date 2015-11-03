@@ -30,6 +30,11 @@ function arr2csv($title, $arr, $filename = ''){
                 continue;
             }
             $v = $a[$t['field']];
+            // $v = str_replace('"', '""', $v);
+            $v = addslashes($v);
+            if(strpos($v, ',') !== false){
+                $v = '"' . $v . '"';
+            }
             if(isset($t['islong'])) echo "\t";// \t不进行科学计数
             echo iconv('utf-8', 'gbk', isset($t['func']) ? $t['func']($v) : $v);
             echo ++$i == $total ? "\r\n" : ',';
