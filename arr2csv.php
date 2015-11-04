@@ -25,10 +25,11 @@ function arr2csv($title, $arr, $filename = ''){
         $i = 0;
         foreach ($title as $t) {
             // 查询的时候没取出该字段 或字段对应错误
-            if(!isset($a[$t['field']])){
-                echo 'error',',';
-                continue;
-            }
+            // if(!isset($a[$t['field']])){
+            //     echo '';
+            //     echo ++$i == $total ? "\r\n" : ',';
+            //     continue;
+            // }
             $v = $a[$t['field']];
             // $v = str_replace('"', '""', $v);
             $v = addslashes($v);
