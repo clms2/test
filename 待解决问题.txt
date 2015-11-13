@@ -1,0 +1,15 @@
+1. 这个正则怎么匹配了上面的script
+$s=<<<s
+<script type="text/javascript" src="xx.js">
+    
+</script>
+content
+<script type="text/javascript" src="/hd/js/jquery.min.js"></script> 
+
+s;
+$reg = '#<script.*?src=["\'].*?(jquery.*?\.js)["\'].*?></script>#is';
+/*$reg = '#<script[^>]*?>.*?<\/script>#is';
+$reg = '#<script.*?>.*?</script>#is';*/
+preg_match($reg, $s, $m);
+echo '<pre>';
+print_r($m);exit;
