@@ -1,0 +1,1 @@
+1.Mysql.class.php  getOneField 可以使用 getOneAssoc 无需重复写查询操作
