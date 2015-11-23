@@ -1,1 +1,16 @@
 1.Mysql.class.php  getOneField 可以使用 getOneAssoc 无需重复写查询操作
+2.这个正则怎么匹配了上面的script
+$s=<<<s
+<script type="text/javascript" src="xx.js">
+    
+</script>
+content
+<script type="text/javascript" src="/hd/js/jquery.min.js"></script> 
+
+s;
+$reg = '#<script.*?src=["\'].*?(jquery.*?\.js)["\'].*?></script>#is';
+/*$reg = '#<script[^>]*?>.*?<\/script>#is';
+$reg = '#<script.*?>.*?</script>#is';*/
+preg_match($reg, $s, $m);
+echo '<pre>';
+print_r($m);exit;
