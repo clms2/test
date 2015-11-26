@@ -39,7 +39,7 @@ while(1){
 	$w = date('w');
 	if($w === '0' || $w == '6'){
 		addlog("date(w):{$w} sleep one day start ..");
-		sleep(86400);
+		sleep(86400+10*60);// 加10分钟 确保不会睡3晚
 		addlog('sleep one day end.');
 		continue;
 	}
