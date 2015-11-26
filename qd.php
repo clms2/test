@@ -7,7 +7,7 @@ define('LOGDIR',$_SERVER['DOCUMENT_ROOT'].'/log' );
 !is_dir(LOGDIR) && mkdir(LOGDIR, 0777, 1);
 
 $debug = 1;// 记录日志
-$nosend = true;// 不发送请求,仅测试
+$nosend = false;// true:不发送请求,仅测试
 $login = 'http://vmprncs02:8020/User/Login';
 $offurl = 'http://vmprncs02:8020/Home/OffDutyCheck';
 $data = array(
@@ -17,10 +17,10 @@ $data = array(
 );
 
 $time_range = array(
-	// 时分秒截止打卡时间,8:30~58:0~59
+	// 时分秒截止打卡时间,8:25~54:0~59
 	'morning' => array(8, array(25,54), array(0,59), 'endtime'=>'9:00:00'),
-	// 时分秒开始打卡时间,18:2~12:0~59
-	'evening' => array(18, array(2, 12), array(0,59), 'starttime'=>'18:01:00')
+	// 时分秒开始打卡时间,18:6~20:0~59
+	'evening' => array(18, array(6, 20), array(0,59), 'starttime'=>'18:01:00')
 );
 
 // --end config
@@ -28,9 +28,21 @@ $time_range = array(
 ignore_user_abort(1);
 set_time_limit(0);
 
+addlog('start ..');
+register_shutdown_function(function(){
+	addlog('shutdown ..');
+});
+
 $session = array();
 while(1){
 	$t = time();
+	$w = date('w');
+	if($w === '0' || $w == '6'){
+		addlog("date(w):{$w} sleep one day start ..");
+		sleep(86400);
+		addlog('sleep one day end.');
+		continue;
+	}
 	if(empty($session) || date('d') != $session['day']){
 		addlog('create random param');
 		$session['day'] = date('d');
@@ -78,7 +90,7 @@ while(1){
 		if($debug){
 			addlog('mo0:'. date('Y-m-d H:i:s', $morning[0]));
 			addlog('mo1:'. date('Y-m-d H:i:s', $morning[1]));
-			addlog('send request loginurl for morning<br>');
+			addlog('send request loginurl for morning ..');
 		}
 		if(!$nosend) curl_send($login, $data);
 	}
@@ -89,7 +101,7 @@ while(1){
 		if($debug){
 			addlog('ev0:'.date('Y-m-d H:i:s', $evening[0]));
 			addlog('ev1:'.date('Y-m-d H:i:s', $evening[1]));
-			addlog('send request offurl for evening');
+			addlog('send request offurl for evening ..');
 		}
 		if(!$nosend) curl_send($offurl, array('q'=>1));
 	}
