@@ -1,0 +1,77 @@
+<?php 
+session_name('CMBCC201510');
+!isset($_SESSION) && session_start();
+// 用于设置藏宝完成之后浏览器跳转然后载入的时候显示一次分享层
+if(isset($_SESSION['need_show_share'])){
+    echo '<script>var need_show_share = 1;</script>';
+    unset($_SESSION['need_show_share']);
+}
+?>
+<div class="shezhicangbao">
+<img src="images/shezhicangbao.png">
+<ul>
+    <li data-val="wugui" class="hb-wugui"></li>
+    <div class="num" style="top:15.5%;left:4%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+    <li data-val="haixing" class="hb-haixing"></li>
+    <div class="num" style="top:15.5%;left:38%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+    <li data-val="zhangyu" class="hb-zhangyu"></li>
+    <div class="num" style="top:15.5%;left:69%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+    <li data-val="haima" class="hb-haima"></li>
+    <div class="num" style="top:33%;left:-2%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+    <li data-val="bangke" class="hb-bangke"></li>
+    <div class="num" style="top:33%;left:23%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+    <li data-val="yu" class="hb-yu"></li>
+    <div class="num" style="top:33%;left:53%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+    <li data-val="pangxie" class="hb-pangxie"></li>
+    <div class="num" style="top:33%;left:79%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+    <li data-val="meirenyu" class="hb-meirenyu"></li>
+    <div class="num" style="top:52%;left:5%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+    <li data-val="ankang" class="hb-ankang"></li>
+    <div class="num" style="top:52%;left:35%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+    <li data-val="shayu" class="hb-shayu"></li>
+    <div class="num" style="top:52%;left:71%">
+        <span class="jian">-</span>
+        <input type="tel" maxlength="2" class="numberbox" value="0" onkeypress="return IsNum(event)">
+        <span class="jia">+</span>
+    </div>
+</ul>
+
+<div class="zongshu-close"></div>
+<div class="shezhi"></div>
+</div>
