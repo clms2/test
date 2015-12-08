@@ -1,0 +1,37 @@
+.btn{background-color: #ecf0f1; border: none;font-size: 12px;padding: 5px 7px;cursor: pointer;border-radius: 5px;box-shadow: 5px 5px 13px #ccc;color: #555;margin-top: 10px;}
+.green{color: #05e200 !important;}
+.grey{color: #959595 !important;}
+.yellow{color: #d9ab0b !important;}
+
+#header{width: 100%;}
+#header h1{font-size: 18px;text-indent: 40px;background-color: #000;height: 35px;line-height: 35px;color: #eee;}
+#header span{font-size: 12px;padding-left: 20px;}
+#header a{margin: 0 5px;color: #eee;}
+
+#search_bar{padding-bottom: 10px;border-bottom: 1px solid #fbfbfb;}
+
+#main{width: 100%;margin: 20px auto;}
+#main tr{height: 40px;}
+#main th,#main td{font-size: 12px;}
+#main th{color: #d1d1d1;text-align: left;padding-left: 10px;}
+#main td{padding-left: 10px;color: #000;}
+#main a,#main .operate{color: #777;}
+#main a:hover{border-color: #777;}
+#main th p{border-right: 1px solid #f4f4f4;}
+
+#list{overflow: auto;}
+#list tr{background-color: #fbfbfb;}
+#list .even{background-color: #f3f6fd;}
+#list .replybox{background-color: #fff;}
+#list .replybox table{margin: 0 auto;}
+#list .replybox tr{border-bottom: 1px solid #eee;background-color: #fff;}
+#list .replybox tr:last{border-bottom: none;}
+#list .status{cursor: pointer;}
+
+#pagelist{margin-top: 15px;}
+#pagelist a{display: inline-block;padding: 2px 4px;border:1px solid #ccc;margin-right: 5px;}
+#pagelist a.in{border-color: #fff;}
+
+.question_form .ipt{width: 95%;}
+.question_form tr{height: 35px;}
+.question_form .t2em{padding-left:1em;}
