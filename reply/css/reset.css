@@ -1,0 +1,20 @@
+div,body,h1,h2,h3,h4,h5,img,p,ul{margin: 0;padding:0}
+img{display: inline-block;}
+i,em{font-style: normal;}
+a{text-decoration: none;outline: none;}
+a:hover{border-bottom: 1px solid #fff;}
+li{list-style: none;}
+form{border:0;}
+table{border-collapse: collapse;}
+th{font-weight: normal;}
+
+.clearfix:after{content:".";display:block;height:0;clear:both;visibility:hidden;}
+.clearfix{display:inline-table;}/* Hides from IE-mac \*/
+*html .clearfix{height:1%;}
+.clearfix{display:block;}/* End hide from IE-mac */
+*+html .clearfix{min-height:1%;}
+.clear{clear:both;}
+
+.lifl li,.left{float: left;}
+label{cursor: pointer;}
+body{font: small "Lucida Grande",Verdana,sans-serif;}
