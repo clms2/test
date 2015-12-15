@@ -186,7 +186,7 @@ $status_all = getStatus();
 								</tr>\
 								<tr>\
 									<td align="right">描述:</td>\
-									<td class="t2em"><textarea placeholder="问题描述.." name="cont" style="width: 95%; height: 156px;"></textarea></td>\
+									<td class="t2em"><textarea placeholder="问题描述,如果为空列表页会显示回复." name="cont" style="width: 95%; height: 156px;"></textarea></td>\
 								</tr>\
 								<tr>\
 									<td class="t2em" colspan="2"><input class="btn_add_sub btn" type="button" value="提交" /></td>\
@@ -234,7 +234,7 @@ $status_all = getStatus();
 								</tr>\
 								<tr>\
 									<td align="right">描述:</td>\
-									<td class="t2em"><textarea placeholder="问题描述.." name="cont" style="width: 95%; height: 156px;">{cont}</textarea></td>\
+									<td class="t2em"><textarea placeholder="问题描述,如果为空列表页会显示回复." name="cont" style="width: 95%; height: 156px;">{cont}</textarea></td>\
 								</tr>\
 								<tr>\
 									<td class="t2em" colspan="2"><input class="btn_modify_sub btn" type="button" value="提交" /></td>\
@@ -252,11 +252,11 @@ $status_all = getStatus();
 					<td colspan="7">\
 						<table width="90%" border="0" cellspacing="0" cellpadding="0">\
 							<tr>\
-								<td>用户</td>\
+								<td width="6%">用户</td>\
 								<td>内容</td>\
-								<td>回复时间</td>\
-								<td>修改时间</td>\
-								<td>操作</td>\
+								<td width="12%">回复时间</td>\
+								<!-- <td>修改时间</td> -->\
+								<td width="6%">操作</td>\
 							</tr>\
 						</table>\
 					</td>\
@@ -266,7 +266,7 @@ $status_all = getStatus();
 							<td>{uname}</td>\
 							<td class="cont">{cont}</td>\
 							<td>{addtime}</td>\
-							<td class="uptime">{uptime}</td>\
+							<!-- <td class="uptime">{uptime}</td> -->\
 							<td data-id={id}>\
 								<a href="javascript:void(0)" class="rp_modify">修改</a>\
 								<!-- <a href="javascript:void(0)" title="将显示在" class="rp_rec">设为推荐 </a> -->\
