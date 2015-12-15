@@ -149,6 +149,8 @@ $(function(){
 	        content: template.add.replace('{tag}', temptag),
 	        success: function(obj){
 	        	obj.find('input:first').focus();
+	        	$(".replybox").hide();
+	        	$(".viewhide").html('显示回复');
 	        }
 	    });
 	});
@@ -520,7 +522,7 @@ $(function(){
 				return;
 			}
 			// 修改提问所在行 并标为已显示 todo.. 优化下
-			cache.questiontr.find('.description').val(description).end().find('.keywords').val(keywords).end().find('.viewnum').val(view).end().find('.q_cont').html(val).end().find('.q_tag').html(new_tag).end().find('.q_tit').html(tit).end().find('.status').removeClass().addClass('status green').html('已显示');
+			cache.questiontr.find('.q_cont').val(description).end().find('.keywords').val(keywords).end().find('.viewnum').val(view).end().find('.q_cont').html(val).end().find('.q_tag').html(new_tag).end().find('.q_tit').html(tit).end().find('.status').removeClass().addClass('status green').html('已显示');
 
 			layer.close(index.modify_question);
 		});
