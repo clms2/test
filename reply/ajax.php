@@ -6,7 +6,6 @@ require 'check.php';
 $ret = array('code' => 1);
 $a = isset($_POST['a']) ? $_POST['a'] : '';
 $time = time();
-$day = date('Ymd', $time);
 
 // 保险问问详细页匹配正则，添加和修改时的url匹配
 $reg_ask_detail = '#ask/(.*\-)?\d+\.html#';
@@ -21,6 +20,12 @@ switch ($a) {
 			$ret['code'] = 0;
 			ex($ret);
 		}
+		$question = $db->getOneAssoc('question', "id={$qid}", 'solved,status');
+		if(empty($question)){
+			$ret['code'] = 0;
+			ex($ret);
+		}
+
 		$data = array(
 			'qid' => $qid,
 			'cont' => $cont,
@@ -34,8 +39,6 @@ switch ($a) {
 		}
 		$ret['addtime'] = $time;
 		$ret['id'] = $db->last_id();
-
-		$question = $db->getOneAssoc('question', "id={$qid}", 'solved,status');
 
 		// 问答数++
 		qanum('add');
