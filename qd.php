@@ -17,10 +17,10 @@ $data = array(
 );
 
 $time_range = array(
-	// 时分秒截止打卡时间,8:25~54:0~59
-	'morning' => array(8, array(25,54), array(0,59), 'endtime'=>'9:00:00'),
-	// 时分秒开始打卡时间,18:6~20:0~59
-	'evening' => array(18, array(6, 20), array(0,59), 'starttime'=>'18:01:00')
+	// 8:45~53:0~59
+	'morning' => array(8, array(45,53), array(0,59), 'endtime'=>'9:00:00'),
+	// evening off
+	'evening' => array('starttime'=>'18:01:00', 'endtime' => '18:30:00')
 );
 
 // --end config
@@ -54,15 +54,13 @@ while(1){
 		$morning = array(strtotime("{$range_morning[0]}:{$i}:{$s}"), strtotime($range_morning['endtime']));
 
 		$range_evening = $time_range['evening'];
-		$i = mt_rand($range_evening[1][0], $range_evening[1][1]);
-		$s = mt_rand($range_evening[2][0], $range_evening[2][1]);
-		$evening = array(strtotime($range_evening['starttime']), strtotime("{$range_evening[0]}:{$i}:{$s}"));
+		$evening = array(strtotime($range_evening['starttime']), strtotime($range_evening['endtime']));
 
 		if($debug){
-			addlog('上班开始打卡时间：'.date('Y-m-d H:i:s', $morning[0]));
-			addlog('上班结束打卡时间：'.date('Y-m-d H:i:s', $morning[1]));
-			addlog('下班开始打卡时间：'.date('Y-m-d H:i:s', $evening[0]));
-			addlog('下班结束打卡时间：'.date('Y-m-d H:i:s', $evening[1]));
+			addlog('morning check in start time：'.date('Y-m-d H:i:s', $morning[0]));
+			addlog('morning check in end time：'.date('Y-m-d H:i:s', $morning[1]));
+			addlog('evening check out start time：'.date('Y-m-d H:i:s', $evening[0]));
+			addlog('evening check out end time：'.date('Y-m-d H:i:s', $evening[1]));
 		}
 	}
 
@@ -84,7 +82,7 @@ while(1){
 		if(!$nosend) curl_send($login, $data);
 	}
 
-	// 上班
+	// check in
 	if(!isset($session['morning']) && $t > $morning[0] && $t < $morning[1]){
 		$session['morning'] = 1;
 		if($debug){
@@ -95,7 +93,7 @@ while(1){
 		if(!$nosend) curl_send($login, $data);
 	}
 
-	// 下班
+	// off
 	if(!isset($session['evening']) && $t > $evening[0] && $t < $evening[1]){
 		$session['evening'] = 1;
 		if($debug){
@@ -121,6 +119,7 @@ while(1){
 function addlog($ct){
 	$t = date('Y-m-d H:i:s');
 	$f = 'log_' . date('Ymd') . '.txt';
+	if($GLOBALS['nosend']) $f = 'test_send.log';// 测试日志
 	file_put_contents(LOGDIR . "/{$f}", "{$t}  {$ct}\r\n", FILE_APPEND);
 }
 
