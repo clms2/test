@@ -1,5 +1,12 @@
+ld:
+1.
 liuyislogin
 589dae7af22d8570c0ee3b36782b1b16
+
+2.
+http://me.aaisme.com//index.php/user/updatepassword?uid=8237642&newpass=123456789
+
+
 
 bd:
 1.
