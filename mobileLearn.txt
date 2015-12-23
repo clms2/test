@@ -3,3 +3,20 @@
 	var b=document.documentElement,a=function(){var a=b.getBoundingClientRect().width;b.style.fontSize=.0625*(640<=a?640:a)+"px"},c=null;window.addEventListener("resize",function(){clearTimeout(c);c=setTimeout(a,300)});a()
 })();//rem reset
 </script>
+
+
+// 按 1rem =(750 / 16)px 换算
+(function (doc, win) {
+  var docEl = doc.documentElement,
+	resizeEvt = 'orientationchange' in window ? 'orientationchange': 'resize',
+	recalc = function () {
+	  var clientWidth = docEl.clientWidth;
+	  if (!clientWidth) return;
+	  // 按照设计稿750px来计算 浏览器默认基数单位为1rem = 16px,所以这里的1rem = 750 / 16
+	  docEl.style.fontSize = (750 / 16) * (clientWidth / 750) + 'px';
+	};
+
+  if (!doc.addEventListener) return;
+  win.addEventListener(resizeEvt, recalc, false);
+  recalc();
+})(document, window);
