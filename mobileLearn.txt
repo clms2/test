@@ -20,3 +20,8 @@
   win.addEventListener(resizeEvt, recalc, false);
   recalc();
 })(document, window);
+
+
+jquery.fullpage.js
+/campaign/mc/aio/seo/201512/
+
