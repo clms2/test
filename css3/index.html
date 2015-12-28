@@ -1,0 +1,48 @@
+<style>
+*{margin:0;padding:0;}
+.container-desc .bb {
+    background: rgba(0, 0, 0, 0.1) none no-repeat scroll 50% center / 70% auto;
+    box-shadow: 0 0 0 1px rgba(105, 202, 98, 0.5) inset;
+    color: #69ca62;
+    height: 200px;
+    margin: auto;
+    width: 200px;
+}
+.container-desc .bb::before, .bb::after {
+    animation: 8s linear 0s normal none infinite running clipMe;
+    box-shadow: 0 0 0 2px inset;
+    content: "";
+    margin: -5%;
+    z-index: -1;
+}
+.container-desc .bb, .bb::before, .bb::after {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.container-desc .bb::before {
+    animation-delay: -4s;
+}
+@keyframes clipMe {
+0%, 100% {
+    clip: rect(0px, 220px, 2px, 0px);
+}
+25% {
+    clip: rect(0px, 2px, 220px, 0px);
+}
+50% {
+    clip: rect(218px, 220px, 220px, 0px);
+}
+75% {
+    clip: rect(0px, 220px, 220px, 218px);
+}
+}
+</style>
+<div class="container container-desc">
+<div class="col-md-3">
+            <div class="bb">
+                
+            </div>
+        </div></div>
