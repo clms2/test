@@ -27,3 +27,4 @@ register_shutdown_function($e, $_REQUEST['pass']);
 other:
 1. sublime text theme editor:http://tmtheme-editor.herokuapp.com/#!/editor/theme/Monokai
 2. 压测工具http://blog.jobbole.com/87509
+3. HTMLPurifier – HTML XSS 防护
