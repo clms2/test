@@ -53,3 +53,4 @@ $.fn.extend({
 // section为每个滚动的div块, 点击div.jt向下滚
 $(".section").wheel({next : $(".jt")});
 
+
