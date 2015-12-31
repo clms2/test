@@ -1,4 +1,3 @@
-# test
 1. /campaign： 微信分享接口、活动
 2. /copy： js zeroClipboard-复制插件
 3. /curl： php curl
