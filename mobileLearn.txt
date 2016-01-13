@@ -29,3 +29,6 @@ jquery.fullpage.js
 h5 mui native.js
 http://ask.dcloud.net.cn/docs
 已有案例代码：http://ask.dcloud.net.cn/article/114
+
+angular
+http://www.cnblogs.com/hubcarl/p/4207909.html
