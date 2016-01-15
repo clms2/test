@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="jq.js"></script>
+</head>
+<body>
+	<p class="detail wybug_open_status">
+		<h3 class="detailTitle">简要描述：</h3>
+		<p class="detail wybug_description">废话不多说~</p>
+		<h3 class="detailTitle">漏洞hash：0b0a86a7711caec05cefc18aa42b4caa</h3>
+	</p>
+	<p class="detail wybug_open_status">
+		<h3 class="detailTitle">简要描述：</h3>
+		<p class="detail wybug_description">废话不多说~</p>
+		<h3 class="detailTitle">漏洞hash：0b0a86a7711caec05cefc18aa42b4caa</h3>
+	</p>
+	<p class="detail wybug_open_status">
+		<h3 class="detailTitle">简要描述：</h3>
+		<p class="detail wybug_description">废话不多说~</p>
+		<h3 class="detailTitle">漏洞hash：0b0a86a7711caec05cefc18aa42b4caa</h3>
+	</p>
+	<p class="detail wybug_open_status">
+		<h3 class="detailTitle">简要描述：</h3>
+		<p class="detail wybug_description">废话不多说~</p>
+		<h3 class="detailTitle">漏洞hash：0b0a86a7711caec05cefc18aa42b4caa</h3>
+	</p>
+	<p class="detail wybug_open_status">
+		<h3 class="detailTitle">简要描述：</h3>
+		<p class="detail wybug_description">废话不多说~</p>
+		<h3 class="detailTitle">漏洞hash：0b0a86a7711caec05cefc18aa42b4caa</h3>
+	</p>
+	<p class="detail wybug_open_status">
+		<h3 class="detailTitle">简要描述：</h3>
+		<p class="detail wybug_description">废话不多说~</p>
+		<h3 class="detailTitle">漏洞hash：0b0a86a7711caec05cefc18aa42b4caa</h3>
+	</p>
+	<div style="position:absolute;top: 200px;left:500px;">
+		<button id="pop">click pop</button>
+		<button id="pop2">click pop2</button>
+	</div>
+	<div id="pop_cont" style="float:left;display:none">
+		pop content..
+	</div>
+	<div id="pop2_cont" style="float:left;display:none">
+		pop2 content..
+	</div>
+
+	<script type="text/javascript">
+	function c(v){console.log(v)}
+	$.fn.extend({
+		pop : function(param){
+			var cfg = $.extend({
+				// 跟随滚动
+				follow_scroll : true,
+				// 遮罩层
+				tpl_shadow : '<div class="jq-pop-shadow" style="width:100%;background-color: #000;opacity:0.7;-moz-opacity:0.7;filter:alpha(opacity=70);position:absolute;z-index:500;display:none;top:0;left:0;"></div>',
+				// 内容容器
+				tpl_content : '<div class="jq-pop-content" style="position: absolute;z-index: 555;display: none;background-color:#fff;padding:10px;"></div>' 
+			}, param), _this = $(this);
+
+			var window_info = {
+				'w' : $(document).width(),// 网页高
+				'h' : $(document).height(),// 网页宽
+				'visible_h' : $(window).height(),// 可视高
+				'sctop' : $("body,html").scrollTop()// 滚动高
+			};
+
+			// 弹出元素
+			var pop_info = {'w' : _this.width(), 'h' : _this.height()},
+				pop_elm =  _this.show().wrap(cfg.tpl_content).parent();
+
+			// 遮罩元素
+			var shadow_elm = $(".jq-pop-shadow").length != 0 ? $(".jq-pop-shadow") : $(cfg.tpl_shadow).appendTo($("body"));
+			// 覆盖整个文档高度
+			shadow_elm.height(window_info.h).show();
+			
+			pop_elm.css({
+				'left' : Math.floor((window_info.w - pop_info.w)/2),
+				'top'  : Math.floor((window_info.visible_h - pop_info.h)/2 + (cfg.follow_scroll ? 0 : window_info.sctop)),
+				'position' : cfg.follow_scroll ? 'fixed' : 'absolute'
+			}).show(123);
+
+			// 点击隐藏
+			shadow_elm.click(function() {
+				_this.hide().unwrap();
+				$(this).hide();
+			});
+		}
+	});
+
+
+	$("#pop").click(function() {
+		$("#pop_cont").pop({"follow_scroll":false});
+	});
+	$("#pop2").click(function() {
+		$("#pop2_cont").pop();
+	});
+
+	</script>
+</body>
+</html>
