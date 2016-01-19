@@ -120,11 +120,11 @@ while(1){
 	// 快到off的时候(17:54-17:59 18:00-18:04)改为sleep 60
 	// todo .. 平时sleep时间长些
 	$h = date('H', $t);
-	if($h == '17' || $h == '18'){
-		$i = intval(date('i', $t));
-		if(($i >= 54 && $i <= 59) || ($i >= 0 && $i <= 4)){
-			$sleeptime = 60;
-		}
+	$i = intval(date('i', $t));
+	$condition1 = $h == '17' && $i >= 54 && $i <= 59;
+	$condition2 = $h == '18' && $i >= 0 && $i <= 4;
+	if($condition1 || $condition2){
+		$sleeptime = 60;
 	}
 
 	sleep(mt_rand(60, $sleeptime));
