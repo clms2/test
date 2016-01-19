@@ -15,6 +15,8 @@ $data = array(
 	'SavePwd' => 'true',
 	'UserName' => 'd1chix'
 );
+$sleepday = array(0, 6);// 周末
+// $sleepdate = array('2016-01-01');
 
 $time_range = array(
 	// 8:45~53:0~59
@@ -29,6 +31,7 @@ ignore_user_abort(1);
 set_time_limit(0);
 
 addlog('start ..');
+addlog('sleepday:' . implode(',', $sleepday));
 register_shutdown_function(function(){
 	addlog('shutdown ..');
 });
@@ -37,7 +40,7 @@ $session = array();
 while(1){
 	$t = time();
 	$w = date('w');
-	if($w === '0' || $w == '6'){
+	if(in_array($w, $sleepday)){
 		addlog("date(w):{$w} sleep one day start ..");
 		sleep(86400+10*60);// 加10分钟 确保不会睡3晚
 		addlog('sleep one day end.');
@@ -113,7 +116,18 @@ while(1){
 		// todo.. sleep(一整晚);
 	}
 
-	sleep(mt_rand(60, 5*60));
+	$sleeptime = 5*60;
+	// 快到off的时候(17:54-17:59 18:00-18:04)改为sleep 60
+	// todo .. 平时sleep时间长些
+	$h = date('H', $t);
+	if($h == '17' || $h == '18'){
+		$i = intval(date('i', $t));
+		if(($i >= 54 && $i <= 59) || ($i >= 0 && $i <= 4)){
+			$sleeptime = 60;
+		}
+	}
+
+	sleep(mt_rand(60, $sleeptime));
 }
 
 function addlog($ct){
