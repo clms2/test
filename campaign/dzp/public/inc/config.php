@@ -1,12 +1,10 @@
 <?php 
 date_default_timezone_set('Asia/Shanghai');
-$host = $_SERVER['HTTP_HOST'];
+$host = $_SERVER['SERVER_NAME'];
 
-if(stripos($host, 'cignacmb') !== false && stripos($host, 'test.cignacmb') === false){
-	define('ISDEV', false);
-}else{
-	define('ISDEV', true);
-}
+
+define('ISDEV', false);
+
 
 // 登陆地址
 $loginurl = array(
