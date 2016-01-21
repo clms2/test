@@ -9,10 +9,7 @@
   $db = new MySQL($db_host,$db_user,$db_pass,$db_data);
   
   //处理appid 公众号
-  $appid = 'wx9de7849179fa4533';
-  //生产环境
-  if(strpos($_SERVER['HTTP_HOST'],'cigna') > 0 && $_SERVER['HTTP_HOST'] != 'test.cignacmb.com'){ $appid = 'wx8d188615510c9093'; }
-
+  $appid = '~~~';
   $jssdk = new JSSDK($appid);
   $signPackage = $jssdk->GetSignPackage();
   
@@ -37,16 +34,9 @@ class JSSDK
   public function __construct($appId)
   {	
 	$this->appId = $appId;
+	$this->accountId='~~~';
+	$this->Ticketurl = 'http://10.140.5.166:8080/wxweb/getJsApiTicket.xhtml' . '?accountId=' . $this->accountId;
 	
-	if(strpos($_SERVER['HTTP_HOST'],'cigna') > 0 && $_SERVER['HTTP_HOST'] != 'test.cignacmb.com')
-	{		
-	  $this->accountId = 'gh_6c17146316ec';
-	  $this->Ticketurl = 'http://10.140.5.133/wxweb/getJsApiTicket.xhtml' . '?accountId='.$this->accountId;
-	}else
-	{
-	  $this->accountId='gh_5c67caf6c386';
-	  $this->Ticketurl = 'http://10.140.5.166:8080/wxweb/getJsApiTicket.xhtml' . '?accountId=' . $this->accountId;
-	}
   }
 
   public function getSignPackage()
