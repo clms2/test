@@ -8,6 +8,8 @@ http://me.aaisme.com//index.php/user/updatepassword?uid=8237642&newpass=12345678
 
 3. http://thrd.cofco.com 
 
+4. php dos http://drops.wooyun.org/web/11837
+
 
 bd:
 1.
