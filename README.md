@@ -1,4 +1,4 @@
-1. /campaign： 微信分享接口、活动
+1. /campaign： api
 2. /copy： js zeroClipboard-复制插件
 3. /curl： php curl
 4. /cutpic： 仿淘宝模板制作的功能，仅展示部分代码
