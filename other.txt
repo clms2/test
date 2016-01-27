@@ -34,4 +34,5 @@ other:
 4. sublime plugin:http://blog.jobbole.com/96739/
 5. mysql参数说明与优化：https://www.xuliangwei.com/xubusi/213.html
 6. 浏览器编辑器（php）：data:text/html, <style type%3D"text%2Fcss">%23e{position%3Aabsolute%3Btop%3A0%3Bright%3A0%3Bbottom%3A0%3Bleft%3A0%3B}<%2Fstyle><div id%3D"e"><%2Fdiv><script src%3D"http%3A%2F%2Fd1n0x3qji82z53.cloudfront.net%2Fsrc-min-noconflict%2Face.js" type%3D"text%2Fjavascript" charset%3D"utf-8"><%2Fscript><script>var e%3Dace.edit("e")%3Be.setTheme("ace%2Ftheme%2Fmonokai")%3Be.getSession().setMode("ace%2Fmode%2Fphp")%3B<%2Fscript>
-3.注入：IF(NOW()=SYSDATE(),SLEEP(10),0)/*'XOR(if(now()=sysdate(),sleep(10),0))OR'"XOR(if(now()=sysdate(),sleep(12),0))OR"*/
+7. 注入：IF(NOW()=SYSDATE(),SLEEP(10),0)/*'XOR(if(now()=sysdate(),sleep(10),0))OR'"XOR(if(now()=sysdate(),sleep(12),0))OR"*/
+8. 移动端横竖屏 campaign/mc/his/tangyisheng/
