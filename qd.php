@@ -11,9 +11,9 @@ $nosend = false;// true:不发送请求,仅测试
 $login = 'http://vmprncs02:8020/User/Login';
 $offurl = 'http://vmprncs02:8020/Home/OffDutyCheck';
 $data = array(
-	'PassWord' => 'Aa654321',
+	'PassWord' => '',
 	'SavePwd' => 'true',
-	'UserName' => 'd1chix'
+	'UserName' => ''
 );
 $sleepday = array(0, 6);// 周末
 // $sleepdate = array('2016-01-01');
@@ -22,7 +22,7 @@ $time_range = array(
 	// 8:45~53:0~59
 	'morning' => array(8, array(45,53), array(0,59), 'endtime'=>'9:00:00'),
 	// evening off
-	'evening' => array('starttime'=>'18:01:00', 'endtime' => '18:30:00')
+	'evening' => array('starttime'=>'18:00:00', 'endtime' => '18:30:00')
 );
 
 // --end config
@@ -104,7 +104,7 @@ while(1){
 			addlog('ev1:'.date('Y-m-d H:i:s', $evening[1]));
 			addlog('send request offurl for evening ..');
 		}
-		if(!$nosend) curl_send($offurl, array('q'=>1));
+		// if(!$nosend) curl_send($offurl, array('q'=>1));
 	}
 
 	// 一天已经过去啦
@@ -116,6 +116,7 @@ while(1){
 		// todo.. sleep(一整晚);
 	}
 
+	$least = 60;
 	$sleeptime = 5*60;
 	// 快到off的时候(17:54-17:59 18:00-18:04)改为sleep 60
 	// todo .. 平时sleep时间长些
@@ -125,9 +126,11 @@ while(1){
 	$condition2 = $h == '18' && $i >= 0 && $i <= 4;
 	if($condition1 || $condition2){
 		$sleeptime = 60;
+		if($condition1 && $i >= 59)
+			$least = $sleeptime = 31;
 	}
 
-	sleep(mt_rand(60, $sleeptime));
+	sleep(mt_rand($least, $sleeptime));
 }
 
 function addlog($ct){
