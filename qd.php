@@ -15,8 +15,9 @@ $data = array(
 	'SavePwd' => 'true',
 	'UserName' => ''
 );
-$sleepday = array(0, 6);// 周末
-// $sleepdate = array('2016-01-01');
+$sleepday = array(0, 6);// 周六周日
+// todo..
+$sleepdate = array('2016/02/05~2016/02/14');
 
 $time_range = array(
 	// 8:45~53:0~59
@@ -27,11 +28,24 @@ $time_range = array(
 
 // --end config
 
+foreach ($sleepdate as $k => $date) {
+	if(strpos('~', $date) !== false){
+		$period = array();
+		list($period_s, $period_e) = explode('~', $date);
+		// 获取2个日期间的所有日期存入原数组
+		// todo..
+
+		unset($sleepdate[$k]);
+		$sleepdate += $period;
+	}
+}
+
 ignore_user_abort(1);
 set_time_limit(0);
 
 addlog('start ..');
 addlog('sleepday:' . implode(',', $sleepday));
+addlog('sleepdate:'. implode(',', $sleepdate));
 register_shutdown_function(function(){
 	addlog('shutdown ..');
 });
