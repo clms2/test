@@ -16,3 +16,9 @@ echo '<pre>';
 print_r($m);exit;
 
 3.sublime3 插件 http://blog.jobbole.com/96739/
+
+2016:
+1.	写一个自己用的php框架/cms
+2.	学一些移动端h5开发技术
+3.	使用native.js+mui+hbuilder开发一款HTML5 Plus移动App
+
