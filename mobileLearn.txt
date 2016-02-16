@@ -25,6 +25,7 @@
 jquery.fullpage.js
 /campaign/mc/aio/seo/201512/
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 h5 mui native.js
 http://ask.dcloud.net.cn/docs
