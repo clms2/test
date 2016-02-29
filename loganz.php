@@ -4,11 +4,29 @@
  */
 include 'class/Page.class.php';
 
-$logfile = './cmblog/u_ex160130.log';
+$logfile = './cmblog/u_ex160202.log';
+$baseurl = 'http://cmbchina.cignacmb.com';
 $sesspath = './session';
 $sid = 'geo1nga5uu4i0p3r943a30r2u4';
-$allow_ext = array('jpg', 'gif', 'css', 'js', 'ico', 'php?q=financing/');
+
+$allow_open = 0;
+$allow_ext = array('jpg', 'gif', 'png','html', 'css', 'js', 'ico');
 $allow_method = array('GET', 'POST');
+$allow_code = array(200,304);
+$ignore_url = array('/', '/robots.txt','/ajax.php?a=view', '/index.php?q=program/','/sites/all/themes/cmb/js/cmb.js?v=1001','/index.php?q=health/','/sites/all/themes/cmb/css/main.css?v=1001','/sites/all/themes/cmb/css/asyncbox.css?v=1000','/sites/all/themes/cmb/css/product_zj.css?v=1000','/sites/all/themes/cmb/css/common.css?v=1000','/index.php?q=about/','/index.php?q=program','/sites/all/themes/cmb/js/webtrends.js?v=1000','/sites/all/themes/cmb/js/AsyncBox.v1.4.js?v=1000','/sites/all/themes/cmb/js/combobox.min.js?v=1000','/sites/all/themes/cmb/js/combobox.min.js?v=1000','/index.php?q=ask/','/doc/f7a31c79-f0d0-4d28-be24-f84fd08b206c.rar','/index.php?q=ask','/sites/all/themes/cmb/css/live800.css?v=1000','/sites/all/themes/cmb/js/index_solid.js?v=1000','/hd/2015/zhuanti_zhongji','/hd/2015/zhuanti_zhongji/');
+$ignore_url_reg = array(
+	'#product/([A-Z][a-z])+/?$#',
+	'#ask/(.*\-)?(\d+)\.html/?$#',
+	'#index.php\?q=askinfo&id=\d+$#',
+	'#ask/(\w+)/?(\d+)?$#', 
+	'#index.php\?q=asklist&type=\w+&page=\d+$#', 
+	'#asklist/(\d+)/?$#',
+	'#index.php\?q=asklist&page=\d+$#',
+	'#product/(\w+)/?$#',
+	'#index.php\?q=product(&type=\w+)?/?$#',
+	'#index.php\?q=financing/(bxal|list|bxzs)&page=\d+$#',
+	'#index.php\?q=(financing|health)/?([a-z]+)?/?(&page=\d+)?$#'
+);
 
 
 $sidfile = rtrim($sesspath, '/') . "/sess_{$sid}";
@@ -93,6 +111,9 @@ $newsize = 0;
 $ret = array();
 $http_code = array();
 while (!feof($fp) && ++$i <= $pagesize) {
+	$out = false;
+	$status = 'green';
+
 	$line = fgets($fp);
 	if(empty($line)){
 		echo 'empty line no:',$i+$offset,'<hr>';
@@ -116,12 +137,45 @@ while (!feof($fp) && ++$i <= $pagesize) {
 
 	if($line[5] != '-') $url .= "?{$line[5]}";
 
+	/*if(strpos($url, 'install.php') !== false){
+		echo $time,'<br>',$offset+$i;
+		exit();
+	}*/
+	/*if(($code != 404 || $ua == '-') ){
+		--$i;
+		continue;
+	}*/
+
+	if($allow_open){
+		if($method == 'HEAD'){
+			--$i;
+			continue;
+		}
+
+		$ext = getext($url);
+		if(in_array($ext, $allow_ext) || in_array($url, $ignore_url) || $code == 404){
+			--$i;
+			continue;
+		}
+
+		// 忽略url
+		while(list($key, $reg) = each($ignore_url_reg)){
+			if(preg_match($reg, $url)){
+				$out = true;
+				break;
+			}
+		}
+		reset($ignore_url_reg);
+		if($out){
+			--$i;
+			continue;
+		}
+	}
+
 	$row = compact('time', 'method', 'url', 'port', 'ip', 'ua', 'code');
 
-	$ext = getext($url);
-	$status = 'green';
 	// need warning requests
-	if(!in_array($method, $allow_method) || $ua == '-' || !in_array($ext, $allow_ext)){
+	if(!in_array($method, $allow_method) || $ua == '-' || !in_array($code, $allow_code)){
 		$status = 'red';
 	}
 	// unique http-code, use for filter select options
@@ -168,7 +222,7 @@ $pager = new Page($_SESSION[SEEKNAME]['total'], $pagesize, "?pagesize={$pagesize
 		table th,table td{font-size: 12px;}
 		table th{color: #d1d1d1;text-align: left;padding-left: 10px;}
 		table td{padding-left: 10px;color: #000;}
-		table a,table .operate{color: #777;}
+		table a,table .operate{color: #000;}
 		table a:hover{border-color: #777;}
 		table th p{border-right: 1px solid #f4f4f4;}
 
@@ -228,14 +282,14 @@ $pager = new Page($_SESSION[SEEKNAME]['total'], $pagesize, "?pagesize={$pagesize
 			</tr>
 		</thead>
 		<tbody id="list">
-			<?php $i = 0;foreach ($ret as $arr) {?>
+			<?php $i = $offset;foreach ($ret as $arr) {?>
 			<tr data-method="<?php echo $arr['method'] ?>" data-ip="<?php echo $arr['ip'] ?>" data-code="<?php echo $arr['code'] ?>" class="<?php echo $arr['status'] ?>">
 				<td><p><?php echo ++$i; ?></p></td>
 				<td><p><?php echo $arr['time'] ?></p></td>
 				<td><p><?php echo $arr['method'] ?></p></td>
 				<td><p><?php echo $arr['code'] ?></p></td>
 				<td><p><?php echo $arr['ip'] ?></p></td>
-				<td><p class="url"><?php echo $arr['url'] ?></p></td>
+				<td><p class="url"><a target="_blank" href="<?php echo $baseurl . $arr['url']?>"><?php echo urldecode($arr['url']) ?></a></p></td>
 				<td><p title="<?php echo $arr['ua'] ?>"><?php echo $arr['ua'] == '-' ? '-' : 'user agent';?></p></td>
 			</tr>
 			<tr class="white">
@@ -250,6 +304,30 @@ $pager = new Page($_SESSION[SEEKNAME]['total'], $pagesize, "?pagesize={$pagesize
 
 	<script type="text/javascript">
 		function c($v){console.log($v)}
+
+		function getCookie(name){
+			var value = '',
+				search = name + '=';
+			if (document.cookie.length > 0) {
+				offset = document.cookie.indexOf(search);
+				if (offset != -1) {
+					offset += search.length;
+					end = document.cookie.indexOf(';', offset);
+					if (end == -1) {
+						end = document.cookie.length;
+					}
+					value = unescape(document.cookie.substring(offset, end))
+				}
+			}
+			return value;
+		}
+
+		function setCookie(name, value, days) {
+			var date = new Date();
+			var d = days || 1;
+			date.setDate(date.getDate() + d);
+			document.cookie = name + "=" + escape(value) + "; expires=" + date.toGMTString();
+		}
 
 		/**
 		 * get selected or not empty input filter value to build selector
@@ -297,6 +375,8 @@ $pager = new Page($_SESSION[SEEKNAME]['total'], $pagesize, "?pagesize={$pagesize
 				listtr = $("#list tr"),
 				filter = generateFilter();
 
+			setCookie('filter_url', url, 3);
+
 			if(filter != ''){
 				listtr = listtr.filter(filter);
 			}
@@ -312,10 +392,13 @@ $pager = new Page($_SESSION[SEEKNAME]['total'], $pagesize, "?pagesize={$pagesize
 			var filter = generateFilter(),
 				listtr = $("#list tr");
 
+			setCookie('filter_'+$(this).attr('data-type'), $(this).val(), 3);
+
 			if(filter == ''){
 				listtr.show();
 				return;
 			}
+
 			listtr.hide().filter(filter).show().next().show();
 		});
 
@@ -334,6 +417,40 @@ $pager = new Page($_SESSION[SEEKNAME]['total'], $pagesize, "?pagesize={$pagesize
 				location.href = href + ct +'pagesize='+pagesize;
 			}
 		});
+
+		// init prev page select/input fill content
+		var url = getCookie('filter_url');
+		if(url){
+			$("#filter_url").val(url).change();
+		}
+		$(".jsfilter").each(function() {
+			var type = $(this).attr('data-type'),
+				ckid = 'filter_'+type,
+				ck = getCookie(ckid),
+				tag = $(this)[0].tagName;
+
+			if(ck){
+				if(tag == 'SELECT'){
+					$(this).find("option[value='"+ck+"']").attr('selected','selected');
+				}else{
+					$(this).val(ck);
+				}
+				$(this).change();
+			}
+		});
+
+		$(document).keyup(function(e) {
+			var keycode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
+			if(keycode == 39){
+				location.href = $("#pagelist .pre:eq(1)").attr('href')
+				return;
+			}
+			if(keycode == 37){
+				location.href = $("#pagelist .pre:eq(0)").attr('href')
+				return;
+			}
+		});
+
 	</script>
 </body>
 </html>
