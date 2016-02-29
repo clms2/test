@@ -39,3 +39,4 @@ other:
 9. 前端慢加密http://drops.wooyun.org/tips/10665
 10. sqlmap使用:http://drops.wooyun.org/tips/143   http://drops.wooyun.org/tips/1343
 11. xssghost http://drops.wooyun.org/web/5049
+12. google https://www.iamgg.pw/
