@@ -40,3 +40,4 @@ other:
 10. sqlmap使用:http://drops.wooyun.org/tips/143   http://drops.wooyun.org/tips/1343
 11. xssghost http://drops.wooyun.org/web/5049
 12. google https://www.iamgg.pw/
+13. 2016-04-07 notice http://wooyun.org/bugs/wooyun-2016-0177642
