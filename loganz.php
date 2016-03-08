@@ -135,6 +135,10 @@ while (!feof($fp) && ++$i <= $pagesize) {
 	$ua     = $line[9];
 	$code   = $line[10];
 
+	// w3c格式需加8小时
+	$time = strtotime($time . ' +8 hours');
+	$time = date('Y/m/d H:i:s', $time);
+
 	if($line[5] != '-') $url .= "?{$line[5]}";
 
 	/*if(strpos($url, 'install.php') !== false){
@@ -253,7 +257,7 @@ $pager = new Page($_SESSION[SEEKNAME]['total'], $pagesize, "?pagesize={$pagesize
 			<option value="HEAD">HEAD</option>
 		</select>
 		pagesize : <input type="text" style="width:3em;" value="<?php echo $pagesize ?>" id="set_pagesize" />|
-		ip : <input type="text" placeholder="only full ip work" style="width:8em;" class="jsfilter" data-type="ip">
+		ip : <input type="text" placeholder="ip eg:110.2" style="width:8em;" class="jsfilter" data-type="ip">
 		url not contains : <input type="text" placeholder="part url work" style="width:8em;" id="filter_url" data-type="url">
 	</div>
 	<!-- <table id="bar" width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -337,9 +341,11 @@ $pager = new Page($_SESSION[SEEKNAME]['total'], $pagesize, "?pagesize={$pagesize
 			var ret = '';
 			$(".jsfilter").each(function() {
 				var type = $(this).attr('data-type'),
-					v = $(this).val();
+					v = $(this).val(),
+					pre = '';
 				if(v != ''){
-					ret += "[data-"+type+"='"+v+"']";
+					if(type == 'ip') pre = '^';
+					ret += "[data-"+type+pre+"='"+v+"']";
 				}
 			});
 
@@ -390,9 +396,10 @@ $pager = new Page($_SESSION[SEEKNAME]['total'], $pagesize, "?pagesize={$pagesize
 
 		$(".jsfilter").change(function() {
 			var filter = generateFilter(),
-				listtr = $("#list tr");
+				listtr = $("#list tr"),
+				type = $(this).attr('data-type');
 
-			setCookie('filter_'+$(this).attr('data-type'), $(this).val(), 3);
+			setCookie('filter_'+type, $(this).val(), 3);
 
 			if(filter == ''){
 				listtr.show();
