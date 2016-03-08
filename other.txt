@@ -46,3 +46,13 @@ other:
 16. 小图标 http://one-div.com/
 17. apache生成ssl证书 http://www.cnblogs.com/best-jobs/p/3298258.html
 18. iis默认账户 http://www.iisiis.com/windows/135.html
+19. iis drupal7 rewrite:
+        <rule name="all" stopProcessing="true">
+					<match url="^(.*)$" ignoreCase="false" />
+					<conditions>
+						<add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+						<add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+					</conditions>
+					<action type="Rewrite" url="index.php?q={R:1}" />
+				</rule>
+20. 
