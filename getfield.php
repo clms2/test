@@ -1,25 +1,24 @@
 <?php 
 
-$a = 'findc';
-$wd = 'zc.qq.com';
+$a = isset($_GET['a']) ? $_GET['a'] : 'findc';
+$wd = isset($_GET['wd']) ? $_GET['wd'] : 'zc.qq.com';
+
+if (empty($wd)) exit('empty wd.');
 
 header('content-type:text/html;charset=utf-8');
-include 'inc/Mysql.class.php';
+echo '<pre>';
+
+include 'zhuanpan/public/inc/Mysql.class.php';
 $dbcfg['dbhost'] = '127.0.0.1';
 $dbcfg['dbuser'] = 'root';
 $dbcfg['dbpwd']  = '123456';
-$dbcfg['dbname'] = 'test';
+$dbcfg['dbname'] = 'cmb_insurance';
 $dbcfg['dbport'] = '';
 $dbcfg['pre'] = '';
 
 $db = new Mysql($dbcfg);
 
 set_time_limit(0);
-
-$a = isset($a) ? $a : (isset($_GET['a']) ? $_GET['a'] : 'field');
-$wd = isset($wd) ? $wd : (isset($_GET['wd']) ? $_GET['wd'] : '');
-
-if (empty($wd)) exit('empty wd.');
 
 $tables = $db->getArr("show tables from {$dbcfg['dbname']}", true);
 
@@ -37,8 +36,11 @@ switch ($a) {
 		foreach ($tables as $table) {
 			$fields = $db->getArr("show fields from {$table}", true);
 			foreach ($fields as $field) {
-				if($db->exists($table, "`{$field}` like '%{$wd}%'")){
+				$row = $db->getAssoc($table, "`{$field}` like '%{$wd}%'");
+				if(!empty($row)){
 					echo 'table:',$table,'|field:',$field,'<br>';
+					print_r($row);
+					echo '<hr>';
 					// exit;
 				}
 				// echo $db->lastsql;exit;
