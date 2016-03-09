@@ -111,7 +111,7 @@ $newsize = 0;
 $ret = array();
 $http_code = array();
 while (!feof($fp) && ++$i <= $pagesize) {
-	$out = false;
+	$ignore = false;
 	$status = 'green';
 
 	$line = fgets($fp);
@@ -165,12 +165,12 @@ while (!feof($fp) && ++$i <= $pagesize) {
 		// 忽略url
 		while(list($key, $reg) = each($ignore_url_reg)){
 			if(preg_match($reg, $url)){
-				$out = true;
+				$ignore = true;
 				break;
 			}
 		}
 		reset($ignore_url_reg);
-		if($out){
+		if($ignore){
 			--$i;
 			continue;
 		}
