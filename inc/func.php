@@ -1,4 +1,19 @@
 <?php 
+/**
+ * 返回4天前
+ * @param  int 10 $timestamp 
+ * @return string            
+ */
+function getDateDesc($timestamp){
+	$t = time();
+	$cha = $t - $timestamp;
+	if($cha < 5*60) return '刚刚';
+	if($cha < 3600) return floor($cha/60) . '分钟前';
+	if($cha < 24*3600) return floor($cha/3600) . '小时前';
+	if($cha < 30*86400) return floor($cha/86400) . '天前';
+
+	return date('Y-m-d', $timestamp);
+}
 // 前后台公共函数，不试用模板文件
 
 function ex($arr){
