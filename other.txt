@@ -55,4 +55,4 @@ other:
 					</conditions>
 					<action type="Rewrite" url="index.php?q={R:1}" />
 				</rule>
-20. 
+20. 笔试题库 http://www.bishibaodian.com/
