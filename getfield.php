@@ -96,7 +96,7 @@ switch ($a) {
 		if(empty($newInfo) || NOCACHE) {
 			$newInfo = $_SESSION[$temp] = buildTableHashMap($tables);
 		}
-		
+
 
 		// 展示表数量变化
 		$beforeTables = array_keys($beforeInfo);
@@ -113,13 +113,17 @@ switch ($a) {
 
 		// 展示表内具体变化
 		// todo .. 是否可以在buildTableHashMap中操作?
-		echo 'in loop<br>';
+		echo 'in loop<hr>';
+
+		$primaryFields = getPrimaryFields();
+
+		$ret = array();
+
 		while (list($table, $oldRowInfo) = each($beforeInfo)) {
 			if(!isset($newInfo[$table])){
 				echo 'table droped:',$table,'<br>';
 				continue;
 			}
-			echo $table,'<br>';
 
 			$tableToCompare = $newInfo[$table];
 
@@ -130,34 +134,33 @@ switch ($a) {
 				
 				// 删除了数据
 				if(!empty($tablesDiff['diff1'])){
-					echo 'diff1<br>';
-					print_r($tablesDiff['diff1']);
-					exit;
+					while(list($k, $row) = each($tablesDiff['diff1'])){
+						list($concatFieldValue) = explode(FIELDSEPARATOR, $row, 2);
+						$ret[$table]['deleted'] = array(
+							'primaryFields' => $primaryFields[$table],
+							'primaryFieldsValue' => $concatFieldValue
+						);
+					}
 				}
 				// 新增了数据
+				// todo .. 需判断是否是同一行modify  而不是 delete和add 可能是同一条记录 判断primaryFields
 				if(!empty($tablesDiff['diff2'])){
-					echo 'diff2<br>';
-					print_r($tablesDiff['diff2']);
-					exit;
+					while(list($k, $row) = each($tablesDiff['diff2'])){
+						list($concatFieldValue) = explode(FIELDSEPARATOR, $row, 2);
+						$ret[$table]['added'] = array(
+							'primaryFields' => $primaryFields[$table],
+							'primaryFieldsValue' => $concatFieldValue
+						);
+					}
 				}
+			}else if($oldRowInfo['rownum'] > $tableToCompare['rownum']){
+				// 删除了行
+
 			}
-			// print_r($oldRowInfo);
-			// print_r($tableToCompare);
-			// exit;
-			
-			// print_r($tableToCompare);
-			// exit;
-			// echo $table;
+
+			// 
+
 		}
-
-		print_r($beforeTables);
-		echo '<hr>';
-		print_r($newTables);
-		exit;
-		// 比对表hash变化
-		print_r($newInfo);
-
-
 
 	break;
 	
@@ -197,6 +200,30 @@ function getFirstElem($arr){
 	return array_shift($arr);
 }
 
+/**
+ * 获取数据库表与主键的对应关系
+ * @return array array(表名=>主键)
+ */
+function getPrimaryFields(){
+	global $db,$dbname;
+	// 获取数据库表的主键,有复合主键,用于每个表每一行的hash数组键
+	// todo .. GROUP_CONCAT默认用,链接，如果值里也有,需调整
+	$sql = "SELECT GROUP_CONCAT(t1.COLUMN_NAME SEPARATOR '".GROUPSEPARATOR."') `fields`,t2.table_name tbname 
+	FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS t2 
+	JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE t1 ON t2.table_name = t1.table_name
+	WHERE t2.CONSTRAINT_TYPE = 'PRIMARY KEY' AND t2.TABLE_SCHEMA = '{$dbname}'
+	GROUP BY t1.table_name";
+
+	$temp = $db->getArr($sql);
+	$ret = array();
+	// 表名=>主键名
+	while (list($k, $arr) = each($temp)) {
+		$ret[$arr['tbname']] = $arr['fields'];
+	}
+
+	return $ret;
+}
+
 
 /**
  * 生成数据表的hash信息
@@ -209,22 +236,7 @@ function buildTableHashMap($tables){
 
 	$ret = array();
 
-	// 获取数据库表的主键,有复合主键,用于每个表每一行的hash数组键
-	// todo .. GROUP_CONCAT默认用,链接，如果值里也有,需调整
-	$sql = "SELECT GROUP_CONCAT(t1.COLUMN_NAME SEPARATOR '".GROUPSEPARATOR."') `fields`,t2.table_name tbname 
-	FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS t2 
-	JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE t1 ON t2.table_name = t1.table_name
-	WHERE t2.CONSTRAINT_TYPE = 'PRIMARY KEY' AND t2.TABLE_SCHEMA = '{$dbname}'
-	GROUP BY t1.table_name";
-
-	$temp = $db->getArr($sql);
-	$primaryFields = array();
-	// 表名=>主键名
-	while (list($k, $arr) = each($temp)) {
-		$primaryFields[$arr['tbname']] = $arr['fields'];
-	}
-	// print_r($primaryFields);
-	// exit;
+	$primaryFields = getPrimaryFields();
 
 	$primaryIds = array('id', 'entity_id');
 
@@ -245,9 +257,9 @@ function buildTableHashMap($tables){
 			}
 			// 建立每一行的hash
 			$rowi = 0;
-			while(list($k, $arr) = each($allrow)){
+			while(list($k, $row) = each($allrow)){
 				++$rowi;
-				$hash = md5(implode('', array_values($arr)));
+				$hash = md5(implode('', array_values($row)));
 				// 如果该表有主键就用主键
 				// todo .. 没主键用唯一键，最后再用第一个字段值
 				// 用主键值作为该行的数组键
@@ -256,7 +268,7 @@ function buildTableHashMap($tables){
 				$prefix = '';
 				foreach (explode(GROUPSEPARATOR, $hashKey) as $field) {
 					// todo .. 如果值有空格什么的 或者其他特殊值
-					$prefix .= $arr[$field];
+					$prefix .= $row[$field];
 				}
 				if(empty($prefix)){
 					if(LOGLEVEL >= WARNINGLEVEL)
