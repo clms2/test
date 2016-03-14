@@ -10,9 +10,8 @@ $sid = 'qeo1nga5uu4i0p3r943a30r2u5';
 define('NOTICELEVEL', 20);
 define('WARNINGLEVEL',10);
 define('LOGLEVEL', WARNINGLEVEL);
-define('GROUPSEPARATOR', '->UNIQSP1-<');// GROUP_CONCAT 字段链接用
-define('FIELDSEPARATOR', '->UNIQSP2<-');// 字段和hash值链接用
-define('NOCACHE', 0);
+define('GROUPSEPARATOR', '[-UNIQSP1-]');// GROUP_CONCAT 字段链接主键用
+define('FIELDSEPARATOR', '[-UNIQSP2-]');// 字段和hash值链接用
 $sidfile = rtrim($sesspath, '/') . "/sess_{$sid}";
 
 !is_dir($sesspath) && mkdir($sesspath);
@@ -75,28 +74,17 @@ switch ($a) {
 			}
 		}
 	break;
-	// 后台操作反应到数据库的记录变化，反应后台insert操作
-	case 'beforeChange':
-		!isset($_SESSION[$dbname]) && $_SESSION[$dbname] = array();
-
-		$_SESSION[$dbname] = buildTableHashMap($tables);
-
-		print_r($_SESSION[$dbname]);
-	break;
-	// 后台操作完后访问，显示数据库变化
+	// 显示数据库变化
+	// 第一次访问，建立后台操作前的hash信息，再次访问显示后台操作影响到的表变化
 	case 'showChange':
 		if(empty($_SESSION[$dbname])){
-			exit('操作顺序有误，请按照：a=beforeChange => 后台操作 => a=showChange操作');
+			$_SESSION[$dbname] = buildTableHashMap($tables);
+			exit('建立hash ok,请进行后台操作后再刷新本页面.');
 		}
 		// 后台操作前的表hash值
 		$beforeInfo = $_SESSION[$dbname];
-		// 后台操作后的表hash值,有缓存
-		$temp = $dbname . '_new';
-		$newInfo = isset($_SESSION[$temp]) ? $_SESSION[$temp] : '';
-		if(empty($newInfo) || NOCACHE) {
-			$newInfo = $_SESSION[$temp] = buildTableHashMap($tables);
-		}
-
+		// 后台操作后的表hash值
+		$newInfo = buildTableHashMap($tables);
 
 		// 展示表数量变化
 		$beforeTables = array_keys($beforeInfo);
@@ -113,7 +101,6 @@ switch ($a) {
 
 		// 展示表内具体变化
 		// todo .. 是否可以在buildTableHashMap中操作?
-		echo 'in loop<hr>';
 
 		$primaryFields = getPrimaryFields();
 
@@ -127,40 +114,62 @@ switch ($a) {
 
 			$tableToCompare = $newInfo[$table];
 
-			if($oldRowInfo['rownum'] == $tableToCompare['rownum']){
-				if(empty($oldRowInfo['md5'])) $oldRowInfo['md5'] = array();
-				if(empty($tableToCompare['md5'])) $tableToCompare['md5'] = array();
-				$tablesDiff = getArrDiff($oldRowInfo['md5'], $tableToCompare['md5']);
-				
-				// 删除了数据
-				if(!empty($tablesDiff['diff1'])){
-					while(list($k, $row) = each($tablesDiff['diff1'])){
-						list($concatFieldValue) = explode(FIELDSEPARATOR, $row, 2);
-						$ret[$table]['deleted'] = array(
-							'primaryFields' => $primaryFields[$table],
-							'primaryFieldsValue' => $concatFieldValue
-						);
-					}
-				}
-				// 新增了数据
-				// todo .. 需判断是否是同一行modify  而不是 delete和add 可能是同一条记录 判断primaryFields
-				if(!empty($tablesDiff['diff2'])){
-					while(list($k, $row) = each($tablesDiff['diff2'])){
-						list($concatFieldValue) = explode(FIELDSEPARATOR, $row, 2);
-						$ret[$table]['added'] = array(
-							'primaryFields' => $primaryFields[$table],
-							'primaryFieldsValue' => $concatFieldValue
-						);
-					}
-				}
-			}else if($oldRowInfo['rownum'] > $tableToCompare['rownum']){
-				// 删除了行
+			if(empty($oldRowInfo['md5'])) $oldRowInfo['md5'] = array();
+			if(empty($tableToCompare['md5'])) $tableToCompare['md5'] = array();
+			$tablesDiff = getArrDiff($oldRowInfo['md5'], $tableToCompare['md5']);
 
+			// 删除了数据
+			if(!empty($tablesDiff['diff1'])){
+				while(list($k, $row) = each($tablesDiff['diff1'])){
+					list($concatFieldValue) = explode(FIELDSEPARATOR, $row, 2);
+					// 改成这种方便后续处理，但可能会带来问题，因为数组键是数据库值：以主键连起来的值作为键 以连起来的主键作为值
+					// to fixed ..
+					$ret[$table]['deleted'][$concatFieldValue] = $primaryFields[$table];
+					// $ret[$table]['deleted'][] = array(
+					// 	'primaryFields' => $primaryFields[$table],
+					// 	'primaryFieldsValue' => $concatFieldValue
+					// );
+				}
+			}
+			// 新增了数据
+			if(!empty($tablesDiff['diff2'])){
+				while(list($k, $row) = each($tablesDiff['diff2'])){
+					list($concatFieldValue) = explode(FIELDSEPARATOR, $row, 2);
+					$ret[$table]['added'][$concatFieldValue] = $primaryFields[$table];
+					// $ret[$table]['added'][] = array(
+					// 	'primaryFields' => $primaryFields[$table],
+					// 	'primaryFieldsValue' => $concatFieldValue
+					// );
+				}
 			}
 
 			// 
-
 		}
+		// 判断是否是同一行modify  而不是 delete和add 可能是同一条记录 判断primaryFields 也可以在上面新增数据的地方判断 但可能会有一个表多条记录修改漏掉的情况
+		while(list($table, $info) = each($ret)){
+			// 有一个为空就表示没有update
+			if(empty($info['deleted']) || empty($info['added'])) continue;
+			// 循环具体行判断
+			while(list($primaryFieldsValue, $primaryFields) = each($info['added'])){
+				// 说明该行有update,删除deleted 和added数据
+				if(array_key_exists($primaryFieldsValue, $info['deleted'])){
+					$ret[$table]['updated'][$primaryFieldsValue] = $primaryFields;
+
+					unset($ret[$table]['added'][$primaryFieldsValue],$ret[$table]['deleted'][$primaryFieldsValue]);
+				}
+			}
+			if(empty($ret[$table]['deleted'])) unset($ret[$table]['deleted']);
+			if(empty($ret[$table]['added'])) unset($ret[$table]['added']);
+		}
+
+		// 这次操作后的hash值就是下次比较前的info了
+		// $_SESSION[$dbname] = $newInfo;
+
+		echo 'rows change,array(table => array(以主键连起来的值 => 连起来的主键)):<br>';
+		array_walk_recursive($ret, function(&$v, $k){
+			$v = str_replace(GROUPSEPARATOR, '+', $v);
+		});
+		print_r($ret);
 
 	break;
 	
