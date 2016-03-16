@@ -335,6 +335,7 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
             if (e.ctrlKey) {
                 //enter
                 if (k == 13) {
+            		console.clear();	
                     autosubmit();
                     e.preventDefault();
                 }
