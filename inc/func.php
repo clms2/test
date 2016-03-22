@@ -1,4 +1,18 @@
 <?php 
+function strToBin($str){
+	$arr = preg_split('/(?<!^)(?!$)/u', $str);
+	// $arr = preg_split('//u', $str,-1, PREG_SPLIT_NO_EMPTY);
+
+	//2.unpack字符
+	foreach($arr as &$v){
+		$temp = unpack('H*', $v); 
+		$v = base_convert($temp[1], 16, 2);
+		unset($temp);
+	}
+
+	return join(' ',$arr);
+}
+
 /**
  * 返回4天前
  * @param  int 10 $timestamp 
