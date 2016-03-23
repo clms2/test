@@ -60,3 +60,4 @@ other:
 22. 绕过waf注入 http://drops.wooyun.org/tips/7883
 23. css3 flex布局 http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html
 24. socket wen dang http://jinnianshilongnian.iteye.com/blog/1896756
+25. sql inject tool Havij
