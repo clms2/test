@@ -3,7 +3,7 @@ header('content-type:text/html;charset=utf-8');
 date_default_timezone_set('PRC');
 //$func = get_extension_funcs('standard');
 //sort($func);
-$func = array ('' => '无', 'urldecode' => 'url解码', 'md5' => 'md5加密', 'strlen', 'json_encode', 'json_decode'); //键名是php函数,键值是描述,未指定键名则两者相同.
+$func = array ('' => '无', 'urldecode' => 'url解码', 'md5' => 'md5加密', 'strlen', 'json_encode', 'json_decode', 'base64_encode', 'base64_decode'); //键名是php函数,键值是描述,未指定键名则两者相同.
 $type = array ('echo', 'var_dump', 'print_r');
 
 $default = array ('func' => 'urldecode', 'type' => 'print_r');
@@ -43,17 +43,14 @@ foreach ( $type as $val ) {
 //在光标处插入文字
 (function($){
     $.fn.extend({
-        "insert": function(value){
+        "insert": function(str){
             //默认参数
-            value = $.extend({
-                "text": "123"
-            }, value);
             var dthis = $(this)[0]; //将jQuery对象转换为DOM元素
             //IE下
             if (document.selection) {
                 $(dthis).focus(); //输入元素textara获取焦点
                 var fus = document.selection.createRange();//获取光标位置
-                fus.text = value.text; //在光标位置插入值
+                fus.text = str; //在光标位置插入值
                 $(dthis).focus(); ///输入元素textara获取焦点
             }
             //火狐下标准	
@@ -63,13 +60,13 @@ foreach ( $type as $val ) {
                     var end = dthis.selectionEnd;
                     var top = dthis.scrollTop;
                     //以下这句，应该是在焦点之前，和焦点之后的位置，中间插入我们传入的值
-                    dthis.value = dthis.value.substring(0, start) + value.text + dthis.value.substring(end, dthis.value.length);
+                    dthis.value = dthis.value.substring(0, start) + str + dthis.value.substring(end, dthis.value.length);
                     //设置光标位置
-                    dthis.setSelectionRange((dthis.value.substring(0, start) + value.text).length, (dthis.value.substring(0, start) + value.text).length);
+                    dthis.setSelectionRange((dthis.value.substring(0, start) + str).length, (dthis.value.substring(0, start) + str).length);
                 }
                 //在输入元素textara没有定位光标的情况
                 else {
-                    this.value += value.text;
+                    this.value += str;
                     this.focus();
                 };
             return $(this);
@@ -224,6 +221,106 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
     }
 };
 
+function substr_count(str, search, start, total){
+    var start = start || 0,
+        total = total || 0,
+        index = str.indexOf(search);
+
+    if(index === 0) return total;
+    str = str.substring(start, index);
+    start = index;
+    total += substr_count(str, search, start, total);
+}
+
+// 字符串占网页宽高
+function textSize(fontSize, text) {
+    var span = document.createElement("span");
+    var result = {};
+    result.width = span.offsetWidth;
+    result.height = span.offsetWidth; 
+    span.style.visibility = "hidden";
+    if(fontSize.indexOf('px') === -1) fontSize += 'px';
+    span.style.fontSize = fontSize; 
+    document.body.appendChild(span);
+    if (typeof span.textContent != "undefined")
+        span.textContent = text;
+    else span.innerText = text;
+    result.width = span.offsetWidth - result.width;
+    result.height = span.offsetHeight - result.height;
+    span.parentNode.removeChild(span);
+    return result;
+}
+
+ /**
+ * 获取光标在输入框中的位置
+ * @param inpObj 框Id/document.getElementById对象
+ * @return int
+ */
+function getCursorPos(inpObj){
+    var inpObj = typeof inpObj == 'object' ? inpObj : document.getElementById(inpObj);
+    if(navigator.userAgent.indexOf("MSIE") > -1) { // IE
+        var range = document.selection.createRange();
+        range.text = '';
+        range.setEndPoint('StartToStart',inpObj.createTextRange());
+        return range.text.length;
+    } else {
+        return inpObj.selectionEnd;
+    }
+}
+
+/**
+ * php substr_count的js版
+ * @param  {string} str    
+ * @param  {string} search 
+ * @param  {int} total  不需要传该参数
+ * @return {int}        
+ */
+function substr_count(str, search, total){
+    var total = total || 0,
+        index = str.indexOf(search);
+
+    if(index === -1) return total;
+
+    return substr_count(str.substr(++index), search, ++total);
+}
+
+/**
+ * 选择文本
+ * @textbox : 要操作的文本对象
+ * @startIndex : 要选择文本中第一个字符的索引
+ * @stopIndex : 要选择文本最后一个字符之后的索引
+ */
+function selectText(textbox, startIndex, stopIndex){
+    if(typeof textbox == 'string') textbox = document.getElementById(textbox);
+    if(textbox.setSelectionRange){
+        textbox.setSelectionRange(startIndex,stopIndex);
+    }else if(textbox.createTextRange){
+        var range=textbox.createTextRange();
+        range.collapse(true);
+        range.moveStart('character',startIndex);
+        range.moveEnd('character',stopIndex-startIndex);
+        range.select();
+    }
+    textbox.focus();
+}
+
+
+/**
+ * 获取输入框选中的文本
+ * @param  {string/object} editor #id 或者document.getElementById对象
+ * @return {string}
+ */
+function getSelectText(editor) {
+    if (!editor) return; 
+    if(typeof editor == 'string') editor = document.getElementById(editor);
+    editor.focus();
+    if (editor.document && editor.document.selection)
+        return editor.document.selection.createRange().text; 
+    else if ("selectionStart" in editor)
+        return editor.value.substring(editor.selectionStart, editor.selectionEnd); 
+}
+
+
 </script>
 <style>
 .t {
@@ -313,7 +410,11 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
     "\n<\/body>" +
     "\n<\/html>";
     
-    var lastfunc = '';
+    var lastfunc = '',
+        lastpos,
+        lastwd = '',
+        code = $("#code"),
+        codeInfo = {'width' : code.width(), 'height' : code.height(), 'lineH' : code.css('line-height'), 'fontsize' : code.css('font-size')};
     // 组织firefox ctrl+r刷新页面
     $(document).keypress(function (e) {
         var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
@@ -330,12 +431,13 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
         $("#quick").click(function(){
             quick_func($("#code").val());
         });
-        $("#code").keypress(function(e){
+        // 快捷键
+        code.keypress(function(e){
             var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
             if (e.ctrlKey) {
                 //enter
                 if (k == 13) {
-            		console.clear();	
+                    console.clear();
                     autosubmit();
                     e.preventDefault();
                 }
@@ -356,9 +458,81 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
             }
             //tab 加\t
             if (k == 9) {
-                $(this).insert({"text":"\t"});
+                $(this).insert("\t");
                 e.preventDefault();
             }
+        }).keyup(function(){
+            // todo.. 实现输入</自动补完标签功能，以及类似编辑器的函数提示功能
+            var pos,// 光标位置
+                curwd,// 本次输入内容
+                txt,// 选中文本
+                temp,// 临时变量
+                cursorSetted = false;// 是否已setCursor过
+            // 获得当前光标位置
+            pos = getCursorPos(this);
+            if(pos == lastpos || pos === 0) return;
+            lastpos = pos;
+
+            // 自动补完标签功能
+            // do while:不要太多缩进啦
+
+            // 获得光标位置往前一位的字母，即刚输入的字母
+            // todo.. 可优化在keyup的时候赋值给lastwd
+            selectText(this, pos-1, pos);
+            curwd = getSelectText(this);
+            do{
+                // 第一次输入跳过
+                if(lastwd == '') break;
+                // 判断这次输入的和上次输入的拼接起来的字符串是否为</
+                temp = lastwd + curwd;
+                if(temp !== '</') break;
+
+                // 获得当前光标到起点的所有文本
+                selectText(this, 0, pos);
+                txt = getSelectText(this);
+
+                // 从后往前检索起始标签位置，不要刚输入的<
+                temp = txt.lastIndexOf('<', txt.length - 3);
+                if(temp == -1) break;
+
+                // 截取后面的文本以获取标签
+                temp = txt.substr(temp);
+                var index = temp.indexOf('>');
+                // 跳过未找到结尾>的
+                if(index == -1) break;
+
+                // 这个就是tag啦
+                var tag = temp.substring(1, index);
+                // optional todo ..可以再判断下这个tag是否合法tag
+                // 补完标签
+                tag = tag + '>';
+                setCursor(this, pos);
+                $(this).insert(tag);
+                setCursor(this, pos + tag.length);
+                cursorSetted = true;
+            }while(false);
+            // 记住这次输入的字母
+            lastwd = curwd;
+
+            // 取消选择
+            if(!cursorSetted){
+                setCursor(this, pos);
+            }
+
+            return;
+
+            // 获取光标距离输入框左侧和顶部的距离，用于动态定位代码提示的div
+
+            // 选中当前光标到起点的文本
+            selectText(this, 0, pos);
+            // 获得选中文本
+            var txt = getSelectText(this);
+            // 获取选中文本宽高
+            var size = textSize(codeInfo.fontsize, txt);
+            var rowNum = substr_count(txt, '\n');
+            c(rowNum)
+
+            setCursor(this, pos);
         });
         $("#often_func,#desc").keypress(function(e){
         	var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
@@ -441,7 +615,7 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
 
     function qrcode(){
         show_result_div('php');
-        $("#rs").html("<img src='d.php?qrcode=1&code="+$("#code").val()+"'>");
+        $("#rs").html("<img src='d.php?qrcode=1&code="+encodeURIComponent($("#code").val())+"'>");
     }
     
     function autosubmit(){
@@ -496,14 +670,15 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
     
     // 清空/初始化html
     function init(){
-        var html = $("#code").val();
+        var code = $("#code"),
+            html = code.val();
         if (html == '') {
-            $("#code").val(str);
-            setCursor($('#code'), str.indexOf('/body') - 12);
-            // $("#code").html('<pre>'+str+'</pre>');
+            code.val(str);
+            setCursor(code[0], str.indexOf('/body') - 12);
+            // code.html('<pre>'+str+'</pre>');
         }
         else {
-            $("#code").val('').focus();
+            code.val('').focus();
         }
         return;
     }
@@ -544,8 +719,8 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
         return count;
     }
     
+    // 定位光标位置
     function setCursor(obj, position){
-        obj = obj[0];//将jQuery对象转换为DOM元素
         if ($.browser.msie) {
             var range = obj.createTextRange();
             range.move("character", position);
