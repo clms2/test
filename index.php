@@ -221,16 +221,6 @@ $.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : functio
     }
 };
 
-function substr_count(str, search, start, total){
-    var start = start || 0,
-        total = total || 0,
-        index = str.indexOf(search);
-
-    if(index === 0) return total;
-    str = str.substring(start, index);
-    start = index;
-    total += substr_count(str, search, start, total);
-}
 
 // 字符串占网页宽高
 function textSize(fontSize, text) {
