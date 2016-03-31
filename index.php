@@ -487,7 +487,8 @@ function getSelectText(editor) {
 
                 // 截取后面的文本以获取标签
                 temp = txt.substr(temp);
-                var index = temp.indexOf('>');
+                var index = temp.indexOf(' ');
+                if(index == -1) index = temp.indexOf('>');
                 // 跳过未找到结尾>的
                 if(index == -1) break;
 
