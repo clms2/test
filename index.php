@@ -402,9 +402,10 @@ function getSelectText(editor) {
     
     var lastfunc = '',
         lastpos,
-        lastwd = '',
+        lastwd = '',// 用于自动补完标签
+        words = '',// 用于代码提示
         code = $("#code"),
-        codeInfo = {'width' : code.width(), 'height' : code.height(), 'lineH' : code.css('line-height'), 'fontsize' : code.css('font-size')};
+        codeInfo = {'width' : code.width(), 'height' : code.height(), 'lineH' : parseFloat(code.css('line-height')), 'fontsize' : code.css('font-size')};
     // 组织firefox ctrl+r刷新页面
     $(document).keypress(function (e) {
         var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
@@ -413,7 +414,41 @@ function getSelectText(editor) {
                 e.preventDefault();
             }
         }
-    })
+    });
+
+    /**
+     * 获取光标距离输入框左侧和顶部的距离，用于动态定位代码提示的div
+     * @param  {object} domObj dom 对象
+     * @param  {int} pos    光标位置
+     * @return {object}     {top: 33, left:5}
+     */
+    function getCursorAbsolutePos(domObj, pos){
+        var _top = 0,
+            _left = 0;
+
+        // 选中当前光标到起点的文本
+        selectText(domObj, 0, pos);
+        // 获得选中文本
+        txt = getSelectText(domObj);
+        // 获取选中文本宽高
+        var sizeInfo = textSize(codeInfo.fontsize, txt),
+            rowNum = 0,
+            thisRow = '';
+        // 统计光标到起点的字符串行数，默认一个\n一行，但如果该行width超过输入框width，那么就以多行计算
+        for(var j = 0, arr = txt.split('\n'),len = arr.length; j < len; j++){
+            rowNum += Math.ceil(textSize(codeInfo.fontsize, arr[j]).width/codeInfo.width) || 1;
+            // 保存下最后一行 也就是光标所在行
+            if(j == len - 1){
+                thisRow = arr[j];
+            }
+        }
+        // 那么距离顶部的距离就是:
+        _top = rowNum * codeInfo.lineH;
+        // 距左侧距离就是：
+        _left = textSize(codeInfo.fontsize, thisRow).width;
+
+        return {top: _top, left: _left};
+    }
     $(document).ready(function(){
         $("#init").click(function(){
             init();
@@ -457,7 +492,7 @@ function getSelectText(editor) {
                 curwd,// 本次输入内容
                 txt,// 选中文本
                 temp,// 临时变量
-                cursorSetted = false;// 是否已setCursor过
+                cursorSetted = false// 是否已setCursor过
             // 获得当前光标位置
             pos = getCursorPos(this);
             if(pos == lastpos || pos === 0) return;
@@ -470,6 +505,17 @@ function getSelectText(editor) {
             // todo.. 可优化在keyup的时候赋值给lastwd
             selectText(this, pos-1, pos);
             curwd = getSelectText(this);
+            // 代码提示todo .. 判断出输入的是否为函数，有以下情况：
+            // 1. $开头的不是函数
+            // 2. 输入空格或者\t,\t为按下tab自动插入的
+            // 3. 引号包裹的不需要处理
+            c('curwd:'+curwd+'|words:'+words)
+            // 单词结束，清除记录的词
+            // if($.trim(curwd) == '' || curwd == '\t'){
+            //     words = '';
+            // }else if(curwd != '$'){
+            //     words += curwd;
+            // }
             do{
                 // 第一次输入跳过
                 if(lastwd == '') break;
@@ -510,20 +556,6 @@ function getSelectText(editor) {
                 setCursor(this, pos);
             }
 
-            return;
-
-            // 获取光标距离输入框左侧和顶部的距离，用于动态定位代码提示的div
-
-            // 选中当前光标到起点的文本
-            selectText(this, 0, pos);
-            // 获得选中文本
-            var txt = getSelectText(this);
-            // 获取选中文本宽高
-            var size = textSize(codeInfo.fontsize, txt);
-            var rowNum = substr_count(txt, '\n');
-            c(rowNum)
-
-            setCursor(this, pos);
         });
         $("#often_func,#desc").keypress(function(e){
         	var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
