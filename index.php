@@ -29,6 +29,9 @@ foreach ( $type as $val ) {
     $chked = $val == $default['type'] ? ' checked' : '';
     $resulttype .= "<input{$chked} type='radio' name='resulttype[]' class='resulttype' value='{$val}' />{$val}";
 }
+
+$phpfunc = get_defined_functions();
+$phpfunc = $phpfunc['internal'];
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -310,48 +313,36 @@ function getSelectText(editor) {
         return editor.value.substring(editor.selectionStart, editor.selectionEnd); 
 }
 
-
 </script>
 <style>
-.t {
-	text-align: left;
-	font-size: 13px;
-	margin-left: 10px;
-	width: 1000px;
-	height: 220px;
-	margin-left: 150px;
-}
+*{margin: 0;padding: 0;list-style: none}
+.t {text-align: left;font-size: 13px;margin-left: 10px;width: 1000px;height: 220px;margin-left: 150px;}
+.shadow {box-shadow: 1px 0 2px #0f0;}
+#code {margin-top: 30px;}
+#rs {line-height: 16px;border: 1px solid #888;}
+#i {display: none;border: 1px solid #888;}
+.input {margin-left: 150px;margin-top: 10px;}
+.input input {margin-top: 5px;outline: none;}
 
-.shadow {
-	box-shadow: 1px 0 2px #0f0;
-}
-
-#code {
-	margin-top: 30px;
-}
-
-#rs {
-	line-height: 16px;
-	border: 1px solid #888;
-}
-
-#i {
-	display: none;
-	border: 1px solid #888;
-}
-
-.input {
-	margin-left: 150px;
-	margin-top: 10px;
-}
-
-.input input {
-	margin-top: 5px;
-	outline: none;
-}
+#func_list{display: none;position: absolute;box-shadow: 1px 1px 3px #ededed; border: 1px solid #ccc;}
+#func_list li{display: none;padding: 0 10px;font:14px/25px 'Microsoft Yahei';height: 25px;}
+#func_list li:hover{background: #eee;cursor: pointer;}
 </style>
 </head>
 <body>
+<!-- 代码提示功能 -->
+<ul id="func_list">
+    <li>qqq</li>
+    <li>www</li>
+    <li>eee</li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+</ul>
 <form action="d.php" method="post" name="form1" id="form1" target="i">
 	<!-- 代码框 -->
 	<textarea class="t" name="code" id='code'></textarea>
@@ -366,19 +357,20 @@ function getSelectText(editor) {
         <?php echo $option?>
     </select>
     <?php echo $resulttype?>
-    <!-- 添加常用函数 -->
+        <!-- 添加常用函数 -->
 		<div class="often">
 			<input type="text" id="often_func" placeholder="常用函数" autocomplete="off" /> <input type="text" id="desc" placeholder="描述(可选)" /> <input type="button" id="dftfunc" value="默认" /> <input type="button" id="addfunc" value="添加" /> <input type="button" id="delfunc" value="删除" />
             <input type="button" id="copy" value="复制结果" />
 		</div>
 	</div>
+    <!-- 按钮end -->
 </form>
 <br />
 <!-- 结果框 -->
 <iframe name="i" src="" id='i' class="t"></iframe>
 <div class="t" id='rs'></div>
 <script type="text/javascript">
-    var c = function(s){console.log(s)};
+    var c = function(s){ console.log(s)};
 	$("#code").focus();
 	
     var str = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">' +
@@ -400,13 +392,22 @@ function getSelectText(editor) {
     "\n<\/body>" +
     "\n<\/html>";
     
-    var lastfunc = '',
+    var env = 'php',// 当前编辑器处理什么代码
+        lastfunc = '',
         lastpos,
         lastwd = '',// 用于自动补完标签
         words = '',// 用于代码提示
+        ignore_start = false,// 开始忽略标志
+        ignore_end = false,// 结束忽略标志
+        ignore_real_end = false,// 真正结束
+        func_start = false,// 开始拼接函数标志
+        func_end = false,// 结束拼接函数标志
+        phpfunc = <?php echo json_encode($phpfunc);?>,// php 内置函数用于函数提示功能
+        phpfunc_remind_count = $("#func_list li").length,// 下拉显示函数个数
+        func_list = $("#func_list"),// 函数提示div
         code = $("#code"),
-        codeInfo = {'width' : code.width(), 'height' : code.height(), 'lineH' : parseFloat(code.css('line-height')), 'fontsize' : code.css('font-size')};
-    // 组织firefox ctrl+r刷新页面
+        codeInfo = {'width' : code.width(), 'height' : code.height(), 'lineH' : parseFloat(code.css('line-height')), 'fontsize' : code.css('font-size'), 'offset': code.offset()};
+    // 阻止firefox ctrl+r刷新页面
     $(document).keypress(function (e) {
         var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
         if (e.ctrlKey) {
@@ -447,8 +448,32 @@ function getSelectText(editor) {
         // 距左侧距离就是：
         _left = textSize(codeInfo.fontsize, thisRow).width;
 
-        return {top: _top, left: _left};
+        return {top: _top + codeInfo.offset.top, left: _left + codeInfo.offset.left};
     }
+
+    /**
+     * 模糊匹配，需要数组phpfunc
+     * @param  {string} wd 输入的字
+     * @return {array}   
+     */
+    function search_txt(wd){
+        var ret = [], count = phpfunc_remind_count || 10;
+        if(typeof phpfunc == 'undefined') return ret;
+        var reg = '^'+wd.split('').join('.*')+'.*',
+            func,
+            i = 0;
+        // todo.. 可优化：
+        // 不用遍历全部 似乎 按首字母分类 在特定首字母类别下进行检索效率会高
+        for(func of phpfunc){
+            if(!!func.match(new RegExp(reg))){
+              ret.push(func);
+              if(++i > count) break;
+            }
+        }
+
+        return ret;
+    }
+
     $(document).ready(function(){
         $("#init").click(function(){
             init();
@@ -486,37 +511,97 @@ function getSelectText(editor) {
                 $(this).insert("\t");
                 e.preventDefault();
             }
-        }).keyup(function(){
-            // todo.. 实现输入</自动补完标签功能，以及类似编辑器的函数提示功能
+        }).keyup(function(e){
+            // 实现输入</自动补完标签功能，以及类似编辑器的函数提示功能
+            // todo.. 加个延迟时间，防止输入过快程序会未捕获到输入的文本
             var pos,// 光标位置
+                divpos, // 函数提示div的位置
                 curwd,// 本次输入内容
                 txt,// 选中文本
                 temp,// 临时变量
+                list,// 存模糊匹配结果数组
                 cursorSetted = false// 是否已setCursor过
             // 获得当前光标位置
             pos = getCursorPos(this);
-            if(pos == lastpos || pos === 0) return;
+            if(pos == lastpos || pos === 0){
+                // c('pos == lastpos || pos === 0 return')
+                return;
+            }
             lastpos = pos;
 
-            // 自动补完标签功能
-            // do while:不要太多缩进啦
+            // 方向键 左右不处理
+            var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
+            if(k == 37 || k == 39){
+                // c('keycode == 37 || 39 return')
+                return;
+            }
 
             // 获得光标位置往前一位的字母，即刚输入的字母
             // todo.. 可优化在keyup的时候赋值给lastwd
             selectText(this, pos-1, pos);
             curwd = getSelectText(this);
-            // 代码提示todo .. 判断出输入的是否为函数，有以下情况：
-            // 1. $开头的不是函数
-            // 2. 输入空格或者\t,\t为按下tab自动插入的
-            // 3. 引号包裹的不需要处理
-            c('curwd:'+curwd+'|words:'+words)
-            // 单词结束，清除记录的词
-            // if($.trim(curwd) == '' || curwd == '\t'){
-            //     words = '';
-            // }else if(curwd != '$'){
-            //     words += curwd;
-            // }
+            // 代码提示功能：
+            // 通过判断出输入的是否为函数字母开头进行提示。
             do{
+                if(env == 'html') break;
+                // 匹配到非字母输入 也就是非函数输入，可能为空格、引号、$等
+                if(/[^a-zA-Z]/.test(curwd)){
+                    // 如果还没开始忽略 那么就是第一次匹配
+                    if(!ignore_start) {
+                        // c('ignore_start:true')
+                        ignore_start = true;
+                        // 开始忽略需要做:
+                        func_start = false;
+                        ignore_end = false;
+                        ignore_real_end = false;
+                    }else{
+                        // 如果已经开始忽略 那么该匹配就是第二次匹配到非函数输入了
+                        // c('ignore_end:true')
+                        ignore_end = true;
+                        // 忽略结束需要做:
+                        // // 问题?.,,
+                        ignore_start = false;
+                    }
+                    // 如果已经开始匹配函数 那么就是匹配结束
+                    if(func_start){
+                        // c('func_end:true')
+                        func_end = true;
+                        // 函数结束需要做：
+                        ignore_start = false;
+                        ignore_end = true;
+                        ignore_real_end = true;
+                        func_start = false;
+                    }
+                    // 非函数输入都是清空words
+                    words = '';
+                }else if(ignore_end){
+                    ignore_real_end = true;
+                }
+                if(ignore_real_end && !func_start){
+                    // 开始拼接函数标志
+                    // c('func_start:true')
+                    func_start = true;
+                    ignore_start = false;
+                }
+                // 函数提示功能 匹配开始
+                if(func_start && !func_end){
+                    // c('concat..')
+                    words += curwd;
+                }
+                if(words == '') break;
+                list = search_txt(words);
+                temp = list.length;
+                if(temp == 0) break;
+                divpos = getCursorAbsolutePos(this, pos);
+                func_list.css({left: divpos.left, top: divpos.top, display: 'block'}).children('li').hide().filter(':lt('+temp+')').show().each(function(i){
+                    $(this).text(list[i]);
+                });
+            }while(false);
+            // c('curwd:'+curwd+'|words:'+words+'|ignore_start:'+ignore_start+'|ignore_end:'+ignore_end+'|func_start:'+func_start+'|func_end:'+func_end);
+            
+            // 自动补完标签功能
+            do{
+                if(env == 'php') break;
                 // 第一次输入跳过
                 if(lastwd == '') break;
                 // 判断这次输入的和上次输入的拼接起来的字符串是否为</
@@ -567,7 +652,6 @@ function getSelectText(editor) {
         });
         
         var often_func = eval("("+$.cookie('often_func')+")");
-        console.log(often_func);
         $("#addfunc").click(function(){
             var func = $("#often_func").val(),desc = $("#desc").val();
             if(func == '') return;
@@ -696,11 +780,13 @@ function getSelectText(editor) {
         var code = $("#code"),
             html = code.val();
         if (html == '') {
+            env = 'html';
             code.val(str);
             setCursor(code[0], str.indexOf('/body') - 12);
             // code.html('<pre>'+str+'</pre>');
         }
         else {
+            env = 'php';
             code.val('').focus();
         }
         return;
