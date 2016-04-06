@@ -1,4 +1,27 @@
 <?php
+// form提交或ajax post提交代码
+if(!empty($_POST)){
+    error_reporting(E_ALL | E_STRICT);
+    header('X-XSS-Protection: 0');
+    $code = $_REQUEST['code'];
+    $code = get_magic_quotes_gpc() ? stripslashes($code) : $code;
+    if (isset($_POST['hidden']) && $_POST['hidden'] == 1) {
+        echo $code;
+    } else {
+        date_default_timezone_set('PRC');
+        // 二维码
+        if(isset($_REQUEST['qrcode'])){
+            if(!file_exists('qrcode/Qrcode.class.php')) exit('0');
+            require 'qrcode/Qrcode.class.php';
+            $qr = new Qrcode();
+            $qr->png(urldecode($code)); 
+        }else{
+            echo eval($code);
+        }
+    }
+    exit();
+}
+
 header('content-type:text/html;charset=utf-8');
 date_default_timezone_set('PRC');
 //$func = get_extension_funcs('standard');
@@ -343,7 +366,7 @@ function getSelectText(editor) {
     <li></li>
     <li></li>
 </ul>
-<form action="d.php" method="post" name="form1" id="form1" target="i">
+<form action="" method="post" name="form1" id="form1" target="i">
 	<!-- 代码框 -->
 	<textarea class="t" name="code" id='code'></textarea>
     <!-- <div contentEditable="true" class="t" name="code" id='code'></div> -->
@@ -722,7 +745,7 @@ function getSelectText(editor) {
 
     function qrcode(){
         show_result_div('php');
-        $("#rs").html("<img src='d.php?qrcode=1&code="+encodeURIComponent($("#code").val())+"'>");
+        $("#rs").html("<img src='?qrcode=1&code="+encodeURIComponent($("#code").val())+"'>");
     }
     
     function autosubmit(){
@@ -737,7 +760,7 @@ function getSelectText(editor) {
 
     function getRs(){
         show_result_div('php');
-        $.post('d.php', {
+        $.post('index.php', {
             code: $('#code').val()
         }, function(data){
             $('#rs').html('<pre>' + data + '</pre>');
