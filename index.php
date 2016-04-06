@@ -768,7 +768,7 @@ function getSelectText(editor) {
     }
     
     function setcookie(name,obj_val){
-    	$.cookie(name,$.toJSON(obj_val),{path:'/',expires:<?=$expire_day?>});
+    	$.cookie(name,$.toJSON(obj_val),{path:'/',expires:<?php echo $expire_day?>});
     }
     
     function quick_func(code){
