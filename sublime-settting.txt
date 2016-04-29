@@ -1,0 +1,23 @@
+setting-user:
+{
+	"auto_complete_selector": "source - comment, meta.tag - punctuation.definition.tag.begin, text",
+	"color_scheme": "Packages/User/SublimeLinter/cobalt2 (SL).tmTheme",
+	"enable_tab_scrolling": false,
+	"font_size": 14,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"scroll_past_end": false,
+	"update_check": false,
+	"word_wrap": true
+}
+keybing-user:
+[
+	{ "keys": ["ctrl+down"], "command": "find_under_expand" },
+	{ "keys": ["ctrl+d"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Line.sublime-macro"} },
+	{ "keys": ["ctrl+shift+k"], "command": "find_under_expand" },
+	{ "keys": ["ctrl+alt+0"], "command": "alignment" },
+	{ "keys": ["ctrl+alt+9"], "command": "js_format" },
+	{ "keys": ["f1"], "command": "goto_definition" },
+]
