@@ -1,25 +1,26 @@
 <?php
+error_reporting(E_ALL | E_STRICT);
 // form提交或ajax post提交代码
-if(!empty($_POST)){
-    error_reporting(E_ALL | E_STRICT);
-    header('X-XSS-Protection: 0');
-    $code = $_REQUEST['code'];
+$code = isset($_REQUEST['code']) ? $_REQUEST['code'] : '';
+if(!empty($_POST)){    
+    header('X-XSS-Protection: 0');    
     $code = get_magic_quotes_gpc() ? stripslashes($code) : $code;
     if (isset($_POST['hidden']) && $_POST['hidden'] == 1) {
         echo $code;
     } else {
         date_default_timezone_set('PRC');
-        // 二维码
-        if(isset($_REQUEST['qrcode'])){
-            if(!file_exists('qrcode/Qrcode.class.php')) exit('0');
-            require 'qrcode/Qrcode.class.php';
-            $qr = new Qrcode();
-            $qr->png(urldecode($code)); 
-        }else{
-            echo eval($code);
-        }
+		echo eval($code);
+        
     }
     exit();
+}
+// 二维码
+if(isset($_REQUEST['qrcode'])){
+	if(!file_exists('qrcode/Qrcode.class.php')) exit('0');
+	require 'qrcode/Qrcode.class.php';
+	$qr = new Qrcode();
+	$qr->png(urldecode($code));
+	exit();
 }
 
 header('content-type:text/html;charset=utf-8');
@@ -531,7 +532,7 @@ function getSelectText(editor) {
             }
             //tab 加\t
             if (k == 9) {
-                $(this).insert("\t");
+                $(this).insert("    ");
                 e.preventDefault();
             }
         }).keyup(function(e){
@@ -616,9 +617,9 @@ function getSelectText(editor) {
                 temp = list.length;
                 if(temp == 0) break;
                 divpos = getCursorAbsolutePos(this, pos);
-                func_list.css({left: divpos.left, top: divpos.top, display: 'block'}).children('li').hide().filter(':lt('+temp+')').show().each(function(i){
-                    $(this).text(list[i]);
-                });
+                // func_list.css({left: divpos.left, top: divpos.top, display: 'block'}).children('li').hide().filter(':lt('+temp+')').show().each(function(i){
+                //     $(this).text(list[i]);
+                // });
             }while(false);
             // c('curwd:'+curwd+'|words:'+words+'|ignore_start:'+ignore_start+'|ignore_end:'+ignore_end+'|func_start:'+func_start+'|func_end:'+func_end);
             
