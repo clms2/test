@@ -10,12 +10,11 @@ if(!empty($_POST)){
     } else {
         date_default_timezone_set('PRC');
 		echo eval($code);
-        
     }
     exit();
 }
 // 二维码
-if(isset($_REQUEST['qrcode'])){
+if(isset($_GET['qrcode'])){
 	if(!file_exists('qrcode/Qrcode.class.php')) exit('0');
 	require 'qrcode/Qrcode.class.php';
 	$qr = new Qrcode();
