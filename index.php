@@ -14,7 +14,7 @@ if(!empty($_POST)){
     exit();
 }
 // 二维码
-if(isset($_GET['qrcode'])){
+if(isset($_REQUEST['qrcode'])){
 	if(!file_exists('qrcode/Qrcode.class.php')) exit('0');
 	require 'qrcode/Qrcode.class.php';
 	$qr = new Qrcode();
@@ -26,7 +26,7 @@ header('content-type:text/html;charset=utf-8');
 date_default_timezone_set('PRC');
 //$func = get_extension_funcs('standard');
 //sort($func);
-$func = array ('' => '无', 'urldecode' => 'url解码', 'md5' => 'md5加密', 'strlen', 'json_encode', 'json_decode', 'base64_encode', 'base64_decode'); //键名是php函数,键值是描述,未指定键名则两者相同.
+$func = array ('' => '无', 'urldecode' => 'url解码', 'md5' => 'md5加密', 'date', 'strlen', 'json_encode', 'json_decode', 'base64_encode', 'base64_decode'); //键名是php函数,键值是描述,未指定键名则两者相同.
 $type = array ('echo', 'var_dump', 'print_r');
 
 $default = array ('func' => 'urldecode', 'type' => 'print_r');
@@ -794,7 +794,16 @@ function getSelectText(editor) {
             left2 = "('";
             right2 = "')";
         }
-        $("#code").val(type + left + func + left2 + code + right2 + right + ';');
+        var tempstr;
+        switch(func){
+            // date格式化
+            case 'date':
+                tempstr = type + left + func + "('Y-m-d H:i:s',"+ code + right + ');';
+            break;
+            default:
+                tempstr = type + left + func + left2 + code + right2 + right + ';';
+        }
+        $("#code").val(tempstr);
         $("#form1").submit();
     }
     
