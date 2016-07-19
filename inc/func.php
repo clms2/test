@@ -1,4 +1,31 @@
 <?php 
+/**
+ * array_key_exists的递归搜索
+ * @param  string $key   键名
+ * @param  array $arr   
+ * @param  string $field 如果找到键那么返回该数组的指定字段
+ * @return string/boolean  
+ */
+function array_key_exists_deep($key, $arr, $field = null){
+	if(array_key_exists($key, $arr)){
+		if(isset($field)){
+			return $arr[$key][$field];
+		}
+		return true;
+	}
+	foreach ($arr as $k => $a) {
+		$find = false;
+		if(is_array($a)){
+			$r = $this->array_key_exists_deep($key, $a, $field);
+			if($r){
+				return $r;
+			}
+		}
+	}
+
+	return false;
+}
+
 function strToBin($str){
 	$arr = preg_split('/(?<!^)(?!$)/u', $str);
 	// $arr = preg_split('//u', $str,-1, PREG_SPLIT_NO_EMPTY);
