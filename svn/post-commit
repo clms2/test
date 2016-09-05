@@ -49,3 +49,4 @@ REV="$2"
 
 BASEPATH=/var/www/new_mobile/
 export LANG=zh_CN.UTF-8
+svn update $BASEPATH --username uname --password pwd --no-auth-cache
