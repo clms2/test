@@ -1,0 +1,36 @@
+1.新建一个资源仓库
+切换到svn仓库目录
+svnadmin create test
+
+2.日志看不到问题
+anon-access = none 
+清楚客户端缓存数据
+
+3.启动svn服务
+svnserv -d -r svn仓库目录
+
+4. 将本地项目导入到仓库
+svn import [源路径] [目标版本库路径] -m [日志信息]
+
+5. 删除.svn
+find . -type d -name '.svn' | xargs rm -rf 
+find . -type d -name '.svn' -exec rm -rf {} \;
+
+6. 重新定位
+	a. svn info查看url
+	b. svn switch --relocate 原地址 新地址
+
+7. svn 检出中文文件失败 
+	export LC_CTYPE="zh_CN.UTF-8"
+	不行的话用export LANG="zh_CN.UTF-8"
+
+8. svn代码库从一个仓库迁到另一个仓库
+	a. 切换到svn目录
+	b. 导出项目 包括提交日志
+	svnadmin dump pnew > dd
+	pnew:要导出的仓库名
+	c. 导入
+	svnadmin load code --parent-dir zmq_admin < dd
+	code:新仓库名
+	zmq_admin:新仓库下的文件夹名
+
