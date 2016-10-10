@@ -6,6 +6,7 @@
 */
 
 $sesspath = './session';
+$temp='';
 $sid = 'qeo1nga5uu4i0p3r943a30r2u5';
 define('NOTICELEVEL', 20);
 define('WARNINGLEVEL',10);
@@ -29,11 +30,11 @@ if (empty($wd)) exit('empty wd.');
 header('content-type:text/html;charset=utf-8');
 echo '<pre>';
 
-include 'zhuanpan/public/inc/Mysql.class.php';
+include 'mysqlobj/Mysql.class.php';
 $dbhost = '127.0.0.1';
 $dbuser = 'root';
 $dbpwd = '123456';
-$dbname = 'cmb_insurance';
+$dbname = 'ecshop';
 
 $db = new Mysql(array(
 	'dbhost' => $dbhost,
@@ -73,6 +74,20 @@ switch ($a) {
 				// echo $db->lastsql;exit;
 			}
 		}
+	break;
+	// 为了便于字段很多的表 插入一条记录要列很多字段在代码里 这里 直接拷贝过去即可
+	case 'buildf':
+		$tb = isset($_GET['tb']) ? $_GET['tb'] : '';
+		$tpl = isset($_GET['tpl']) ? $_GET['tpl'] : "'{field}' => isset(\$data['{field}']) ? \$data['{field}'] : '',";
+		if(empty($tb)) exit('no table specified');
+		
+		$fields = $db->getArr("show fields from {$tb}", true);
+		// todo.. 获取表字段类型 用于默认值是0还是''
+		$ret = '';
+		foreach ($fields as $field) {
+			$ret .= strtr($tpl, array('{field}' => $field)) . "\r\n";
+		}
+		echo $ret;
 	break;
 	// 显示数据库变化
 	// 第一次访问，建立后台操作前的hash信息，再次访问显示后台操作影响到的表变化
