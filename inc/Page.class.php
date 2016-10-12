@@ -6,10 +6,20 @@
  */
 class Page {
 	public $url;
-	private $maxpageno;
+	public $tpl = '<li><a{class} href="{url}">{pageno}</a></li>';// 分页html模板
+	private $maxpageno = 10;// 显示几页
 	private $pageno;
 	private $suffix = ''; //静态文件后缀
 	private $staticSuf = array('.html','.htm');
+	private $has_index;// 有首页 
+	private $has_last;// 有末页
+	// 上一页 下一页文字描述
+	private $desc = array(
+		'prev' => '‹',// 上一页
+		'next' => '›',// 下一页
+		'index' => '首页',
+		'last' => '末页'
+	);
 
 	/**
 	 * 
@@ -18,13 +28,24 @@ class Page {
 	 * @param string $url
 	 * @param int $maxpageno 最多页码数 ,包括省略不包括首页上页等,>=7
 	 */
-	function __construct($total, $pagesize, $url, $maxpageno = 7) {
-		$this->pageno = ceil($total / $pagesize);
-		$this->url = $url;
-		$this->maxpageno = $maxpageno < 7 ? 7 : $maxpageno;
+	function __construct($param) {
+		if(empty($param['desc'])) $param['desc'] = array();
+		if(empty($param['pagesize'])) $param['pagesize'] = 12;
+		if(isset($param['maxpageno'])){
+			if($param['maxpageno'] < 7)
+				$param['maxpageno'] = 7;
+			$this->maxpageno = $param['maxpageno'];
+		}
+
+		$this->pageno = ceil($param['total'] / $param['pagesize']);
+		$this->url = $param['url'];
+		$this->has_index = isset($param['has_index']) ? $param['has_index'] : false;
+		$this->has_last  = isset($param['has_last']) ? $param['has_last'] : false;
+
+		$this->desc = array_merge($this->desc, $param['desc']);
 	}
 	
-	function pagelist($curpage = 1, $curclass = 'in') {
+	function pagelist($curpage = 1, $curclass = 'active') {
 		// 如果是静态地址
 		if (in_array(strrchr($this->url, '.'), $this->staticSuf) && $pos = strrpos($this->url, '.')) {
 			$this->suffix = substr($this->url, $pos);
@@ -56,8 +77,12 @@ class Page {
 			$half_end = $this->maxpageno - 2;
 			unset($half_start);
 		}
+		$page = '';
+		if($this->has_index){
+			$page .= $this->getpage($index_url, ' class="index"', $this->desc['index']);
+		}
+		$page .= $this->getpage($pre_url, ' class="pre"', $this->desc['prev']);
 		
-		$page = $this->getpage($index_url, ' class="index"', '首页') . $this->getpage($pre_url, ' class="pre"', '上一页');
 		for($i = 1; $i <= $this->pageno; $i++) {
 			if (isset($half_start) && $i < $half_start && $i > 1) {
 				if ($i == 2) $page .= $this->getpage('javascript:void(0)', ' class="pageinfo"', '...');
@@ -77,13 +102,23 @@ class Page {
 			}
 			$page .= $this->getpage($url, $in, $i);
 		}
-		$page .= $this->getpage($next_url, ' class="pre"', '下一页') . $this->getpage($end_url, ' class="index"', '末页');
+		$page .= $this->getpage($next_url, ' class="pre"', $this->desc['next']);
+		if($this->has_last){
+			$page .= $this->getpage($end_url, ' class="index"', $this->desc['last']);
+		}
 		
 		return $page;
 	}
+
+	public function setTpl($tpl){
+		$this->tpl = $tpl;
+	}
 	
 	private function getpage($url, $class, $i) {
-		return "<a href='{$url}'{$class}>{$i}</a>";
-		// return "<li{$class}><a href='{$url}'>{$i}</a></li>";
+		return strtr($this->tpl, array(
+			'{class}'  => $class,
+			'{url}'    => $url,
+			'{pageno}' => $i
+		));
 	}
 }
