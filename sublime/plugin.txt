@@ -1,2 +1,8 @@
 sublime plugin:http://blog.jobbole.com/96739/
+alignment、converttoutf8、docblockr、emmet、gotolastedit、jquery、jsformat、tag、theme cobalt2
 
+Sublime PHP Companion: 找到光标所在文字的类文件路径并引入
+AllAutocomplete :从所有打开的文件中导入类名、变量名等
+laravel 需要：
+1. Blade Snippets：提供 Blade 模板自动补全
+2. Laravel 4 Blade Highlighter：提供 Blade 关键字高亮

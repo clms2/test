@@ -1,1 +1,0 @@
-alignment、converttoutf8、docblockr、emmet、gotolastedit、jquery、jsformat、tag、theme cobalt2、HiveOpener
