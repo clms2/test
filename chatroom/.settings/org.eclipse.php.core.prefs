@@ -1,0 +1,4 @@
+#Thu Jul 11 08:51:11 CST 2013
+eclipse.preferences.version=1
+include_path=5;com.zend.php.phpunit.CONTAINER\u00050;/chatroom
+use_asp_tags_as_php=false

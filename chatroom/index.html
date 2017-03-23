@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>欢迎来到在线聊天室</title>
+<style>
+.member{width:215px;float:left;overflow-y:auto;border-style:none solid none none;border-width:2px;}
+.right{margin-left:215px;}
+.tool{height:10%;margin:10px 5px;}
+.main{height:70%;border-style:solid none;border-width:2px;}
+textarea{width:95%;height:95%;margin:5px 2px;resize:none;overflow:auto;}
+</style>
+<script src="js/jq.js"></script>
+<script src="js/cookie.js"></script>
+<script src="js/main.js"></script>
+</head>
+<body>
+<div class="member">
+	<ul>
+		<li>张三</li>
+		<li>张三2</li>
+		<li>张三3</li>
+		<li>张三4</li>
+	</ul>
+</div>
+<div class="right">
+	<div class="tool">
+		<input type="button" id="modify_name" value="修改昵称" />
+		<input type="button" id="logout" onclick="javascript:if(confirm('确定要退出吗?')){ logout();window.opener=null;window.open('about:blank','_self');window.close();}" value="退出" />
+	</div>
+	<div class="main">
+		<textarea id="mainc" readonly="readonly"></textarea>
+	</div>
+	<div class="message">
+		<textarea id="msgc" style="width:50%"></textarea>
+		<input type="submit" value="发送" id="sendMsg" />
+		<input type="button" value="清屏" id="cleanMsg">
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$(".member,.right").height($(document).height());
+})
+</script>
+</body>
+</html>
