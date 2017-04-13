@@ -22,3 +22,4 @@ print_r($m);exit;
 2.	学一些移动端h5开发技术
 3.	使用native.js+mui+hbuilder开发一款HTML5 Plus移动App
 
+4. laravel学习： https://www.laravist.com/ https://laracasts.com/ https://annatarhe.github.io/2015/07/09/Laravel-study-notes.html
