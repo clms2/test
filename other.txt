@@ -64,3 +64,4 @@ other:
 24. socket wen dang http://jinnianshilongnian.iteye.com/blog/1896756
 25. sql inject tool Havij
 26. markdown在线编辑器 https://stackedit.io/editor
+27. dns优化 http://tools.cloudxns.net/
