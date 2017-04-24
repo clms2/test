@@ -34,7 +34,7 @@ include 'mysqlobj/Mysql.class.php';
 $dbhost = '127.0.0.1';
 $dbuser = 'root';
 $dbpwd = '123456';
-$dbname = 'ecshop';
+$dbname = isset($_GET['dbname']) ? $_GET['dbname'] : 'ecshop';
 
 $db = new Mysql(array(
 	'dbhost' => $dbhost,
@@ -73,6 +73,13 @@ switch ($a) {
 				}
 				// echo $db->lastsql;exit;
 			}
+		}
+	break;
+	case 'count':
+		// 也可从information_schema中读取
+		foreach ($tables as $table) {
+			$row = $db->getRowNum($table);
+			echo $table,': ',$row,'<br>';
 		}
 	break;
 	// 为了便于字段很多的表 插入一条记录要列很多字段在代码里 这里 直接拷贝过去即可
