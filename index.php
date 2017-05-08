@@ -402,7 +402,7 @@ function getSelectText(editor) {
     "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>" +
     "<title>Insert title here</title>" +
     "<script src='jq.js' type='text/javascript'><\/script>" +
-	"<script>function c(s){console.log(s)}<\/script>"+
+	"<script>function c(){for(var i = 0;i < arguments.length;i++) console.log(arguments[i])}<\/script>"+
     "\n<style>"+
     "\n*{margin:0;padding:0;}"+
     "\n</style>"+
