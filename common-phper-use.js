@@ -177,6 +177,42 @@ $.extend({
      * data-msg-box: param.msg值显示在哪个标签内
      * 
      */
+    /*
+    // 可使用需改的样式    
+    #box{
+        width:5.6rem;
+        background:#fff;
+        padding:0.4rem;
+        position:fixed;
+        left:0.4rem;
+        top:3rem;
+        z-index:4;
+        display:none;
+    }
+    #box.active{
+        display:block;
+    }
+    #box p{
+        font-size:0.3rem;
+        line-height:0.4rem;
+        text-align:center;
+        margin-bottom:0.3rem;
+    }
+    #box .control a{
+        font-size:0.3rem;
+        letter-spacing:1px;	
+        width:2.3rem;
+        line-height:0.7rem;
+        color:#48b7f2;
+        background:#fff;
+        border:0.02rem solid #48b7f2;	
+    }
+    #box .control a.ok{
+        color:#fff;
+        background:#48b7f2;
+        margin-left:0.2rem;
+    }
+    */
     pop: function(param){
         if(typeof param == 'string'){
             var param = {msg: param};
