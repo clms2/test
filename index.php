@@ -38,7 +38,12 @@ if (!isset($_COOKIE['often_func'])) {
     print_r($func);
 } else {
     $func = json_decode($_COOKIE['often_func'], 1);
-    $default['func'] = trim($_COOKIE['often_func_default'], '"');
+    if(!empty($_COOKIE['often_func_default'])){
+        $temp = trim($_COOKIE['often_func_default'], '"');
+    }else{
+        $temp = current($func);
+    }
+    $default['func'] = $temp;
 }
 
 $option = $resulttype = '';
