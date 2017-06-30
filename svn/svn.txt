@@ -33,4 +33,9 @@ find . -type d -name '.svn' -exec rm -rf {} \;
 	svnadmin load code --parent-dir zmq_admin < dd
 	code:新仓库名
 	zmq_admin:新仓库下的文件夹名
+	
+9. svn将已有文件纳入到版本库
+svn co svn://localhost/proa . --username xx --password aa --force
 
+10.svn: Can't convert string from 'UTF-8' to native encoding
+export LC_CTYPE="zh_CN.UTF-8"
