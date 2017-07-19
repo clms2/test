@@ -39,3 +39,10 @@ svn co svn://localhost/proa . --username xx --password aa --force
 
 10.svn: Can't convert string from 'UTF-8' to native encoding
 export LC_CTYPE="zh_CN.UTF-8"
+
+U:表示从服务器收到文件更新了
+G:表示本地文件以及服务器文件都已更新,而且成功的合并了 
+其他的如下:
+A:表示有文件或者目录添加到工作目录
+R:表示文件或者目录被替换了.
+C:表示文件的本地修改和服务器修改发生冲突
