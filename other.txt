@@ -66,3 +66,4 @@ other:
 26. markdown在线编辑器 https://stackedit.io/editor
 27. dns优化 http://tools.cloudxns.net/
 28. nginx 日志切割 http://www.huxd.org/articles/2017/07/17/1500282730786.html
+29. larave5.2 自定义分页http://blog.csdn.net/a8927747/article/details/52933091
