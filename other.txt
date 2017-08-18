@@ -67,3 +67,4 @@ other:
 27. dns优化 http://tools.cloudxns.net/
 28. nginx 日志切割 http://www.huxd.org/articles/2017/07/17/1500282730786.html
 29. larave5.2 自定义分页http://blog.csdn.net/a8927747/article/details/52933091
+30. 正则表达式展示执行过程 https://regexper.com https://jex.im/regulex/#!embed=false&flags=&re=%5E(a%7Cb)*%3F%24
