@@ -70,3 +70,4 @@ other:
 30. 正则表达式展示执行过程 https://regexper.com https://jex.im/regulex/#!embed=false&flags=&re=%5E(a%7Cb)*%3F%24
 31. crontab 在线测试 https://crontab.guru/
 32. pycharm激活 http://idea.lanyus.com/
+33. 各种工具http://tool.lu/
