@@ -436,14 +436,14 @@ function getSelectText(editor) {
         code = $("#code"),
         codeInfo = {'width' : code.width(), 'height' : code.height(), 'lineH' : parseFloat(code.css('line-height')), 'fontsize' : code.css('font-size'), 'offset': code.offset()};
     // 阻止firefox ctrl+r刷新页面
-    $(document).keypress(function (e) {
-        var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
-        if (e.ctrlKey) {
-            if (k == 114) {
-                e.preventDefault();
-            }
-        }
-    });
+    // $(document).keypress(function (e) {
+    //     var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
+    //     if (e.ctrlKey) {
+    //         if (k == 114) {
+    //             e.preventDefault();
+    //         }
+    //     }
+    // });
 
     /**
      * 获取光标距离输入框左侧和顶部的距离，用于动态定位代码提示的div
@@ -557,9 +557,9 @@ function getSelectText(editor) {
             }
             lastpos = pos;
 
-            // 方向键 左右不处理
+            // 方向键 左右 ctrl键不处理
             var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
-            if(k == 37 || k == 39){
+            if(k == 37 || k == 39 || e.ctrlKey){
                 // c('keycode == 37 || 39 return')
                 return;
             }
