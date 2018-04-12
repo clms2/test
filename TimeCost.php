@@ -1,43 +1,18 @@
 <?php 
-header('content-type:text/html;charset="utf-8"');
-echo '<pre>';
-
-function randKey($num = 24){
-	$key = 'qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM1234567890';
-	$i = 0;
-	$ret = '';
-	$len = strlen($key) - 1;
-	while(++$i <= $num){
-		$index = mt_rand(0, $len);
-		$ret .= $key{$index};
-	}
-	return $ret;
-}
-
-function buildA(){
-	// 100 elements, 24byte key and 10k data per entr
-	$aHash = array();
-	for($i = 0;$i<100; $i++){
-		$aHash[randKey()] = randKey(10*1024);
-	}
-	return $aHash;
-}
-
-$a = buildA();
-
-$t = new TimeCost();
-
-$t->setName('foreach');
-$t->ts();
-foreach($a as $val);
-$t->te();
-
-$t->setName('listach');
-$t->ts();
-reset($a);
-while(list(,$val) = each($a));
-$t->te();
-
+/**
+ * 测试运行时间
+ * $tc = new TimeCost;
+ * $tc->setName('use transaction');
+ * $tc->ts();
+ * //code..
+ * $tc->te();
+ *
+ * $tc->setName('no transaction');
+ * $tc->ts();
+ * //code..
+ * $tc->te();
+ * 
+ */
 
 class TimeCost{
 	public $stime;
