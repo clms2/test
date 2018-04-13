@@ -72,3 +72,4 @@ other:
 32. pycharm激活 http://idea.lanyus.com/
 33. 各种工具http://tool.lu/
 34. DevOps https://www.zhihu.com/question/24413538?sort=created
+35. 在线sql http://sqlfiddle.com/
