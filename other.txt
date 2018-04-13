@@ -73,3 +73,4 @@ other:
 33. 各种工具http://tool.lu/
 34. DevOps https://www.zhihu.com/question/24413538?sort=created
 35. 在线sql http://sqlfiddle.com/
+36. tidb 优化 http://blog.jobbole.com/113834/
