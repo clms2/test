@@ -74,3 +74,4 @@ other:
 34. DevOps https://www.zhihu.com/question/24413538?sort=created
 35. 在线sql http://sqlfiddle.com/
 36. tidb 优化 http://blog.jobbole.com/113834/
+37. nginx安全性配置 https://laravel-china.org/articles/9485/the-best-nginx-configuration-for-improving-security
