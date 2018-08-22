@@ -19,5 +19,7 @@
 19. read_excel.php： 读取excel2005
 20. loganz.php : iis log analyze
 21. [/compareDir.php: 比对两文件夹MD5值，获取缺少或新增的文件](https://github.com/clms2/test/blob/master/compareDir.php)
-[//]: < (This is also a comment.)>
+[^_^]:
+    commentted-out contents
+    should be shift to right by four spaces (`>>`).
 
