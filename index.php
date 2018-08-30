@@ -69,7 +69,7 @@ $phpfunc = $phpfunc['internal'];
 
 <!-- code mirror -->
 <link rel="stylesheet" href="codemirror/lib/codemirror.css">
-<link rel="stylesheet" href="codemirror/theme/xq-light.css">
+<link rel="stylesheet" id="styleTheme" href="codemirror/theme/xq-light.css">
 <style type="text/css">
      .CodeMirror {border: 1px solid #888; font-size:13px}
 </style>
@@ -173,6 +173,63 @@ jQuery.cookie = function(name, value, options){
 		<div class="often">
 			<input type="text" id="often_func" placeholder="常用函数" autocomplete="off" /> <input type="text" id="desc" placeholder="描述(可选)" /> <input type="button" id="dftfunc" value="默认" /> <input type="button" id="addfunc" value="添加" /> <input type="button" id="delfunc" value="删除" />
             <input type="button" id="copy" value="复制结果" />
+            变更主题
+            <select id="changeTheme">
+                <option value="">default</option>
+                <option value="3024-day">3024-day</option>
+                <option value="3024-night">3024-night</option>
+                <option value="abcdef">abcdef</option>
+                <option value="ambiance">ambiance</option>
+                <option value="base16-dark">base16-dark</option>
+                <option value="base16-light">base16-light</option>
+                <option value="bespin">bespin</option>
+                <option value="blackboard">blackboard</option>
+                <option value="cobalt">cobalt</option>
+                <option value="colorforth">colorforth</option>
+                <option value="darcula">darcula</option>
+                <option value="dracula">dracula</option>
+                <option value="duotone-dark">duotone-dark</option>
+                <option value="duotone-light">duotone-light</option>
+                <option value="eclipse">eclipse</option>
+                <option value="elegant">elegant</option>
+                <option value="erlang-dark">erlang-dark</option>
+                <option value="gruvbox-dark">gruvbox-dark</option>
+                <option value="hopscotch">hopscotch</option>
+                <option value="icecoder">icecoder</option>
+                <option value="idea">idea</option>
+                <option value="isotope">isotope</option>
+                <option value="lesser-dark">lesser-dark</option>
+                <option value="liquibyte">liquibyte</option>
+                <option value="lucario">lucario</option>
+                <option value="material">material</option>
+                <option value="mbo">mbo</option>
+                <option value="mdn-like">mdn-like</option>
+                <option value="midnight">midnight</option>
+                <option value="monokai">monokai</option>
+                <option value="neat">neat</option>
+                <option value="neo">neo</option>
+                <option value="night">night</option>
+                <option value="oceanic-next">oceanic-next</option>
+                <option value="panda-syntax">panda-syntax</option>
+                <option value="paraiso-dark">paraiso-dark</option>
+                <option value="paraiso-light">paraiso-light</option>
+                <option value="pastel-on-dark">pastel-on-dark</option>
+                <option value="railscasts">railscasts</option>
+                <option value="rubyblue">rubyblue</option>
+                <option value="seti">seti</option>
+                <option value="shadowfox">shadowfox</option>
+                <option value="solarized">solarized</option>
+                <option value="the-matrix">the-matrix</option>
+                <option value="tomorrow-night-bright">tomorrow-night-bright</option>
+                <option value="tomorrow-night-eighties">tomorrow-night-eighties</option>
+                <option value="ttcn">ttcn</option>
+                <option value="twilight">twilight</option>
+                <option value="vibrant-ink">vibrant-ink</option>
+                <option value="xq-dark">xq-dark</option>
+                <option value="xq-light">xq-light</option>
+                <option value="yeti">yeti</option>
+                <option value="zenburn">zenburn</option>
+            </select>
 		</div>
 	</div>
     <!-- 按钮end -->
@@ -342,6 +399,30 @@ editor.focus();
         $("#qrcode").click(function() {
             qrcode();
         });
+
+        function setTheme(theme)
+        {
+            var currentStyleThemeObj = $("#styleTheme");
+
+            var href = currentStyleThemeObj.attr('href');
+            href = href.replace(/(.*?)\/[a-z\d\-]+\.css$/i, '$1/' + theme + '.css');
+
+            currentStyleThemeObj.attr('href', href);
+            editor.setOption('theme', theme);
+        }
+        $("#changeTheme").change(function() {
+            var theme = $.trim($(this).val());
+            if (theme == '') {
+                return;
+            }
+            
+            setcookie('theme', theme);
+            setTheme(theme);
+        });
+        var lastTheme = getcookie('theme');
+        if (lastTheme) {
+            $("#changeTheme").val(lastTheme).trigger('change');
+        }
     })
 
     function qrcode(){
@@ -370,6 +451,12 @@ editor.focus();
     
     function setcookie(name,obj_val){
     	$.cookie(name,JSON.stringify(obj_val),{path:'/',expires:<?php echo $expire_day?>});
+    }
+
+    function getcookie(name) {
+        var ret = $.cookie(name);
+
+        return ret ? JSON.parse(ret) : '';
     }
     
     function quick_func(code){
