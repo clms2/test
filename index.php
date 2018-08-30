@@ -1,5 +1,20 @@
 <?php
 error_reporting(E_ALL | E_STRICT);
+function dd(){
+    $args = func_get_args();
+
+    echo "<pre>";
+    foreach ($args as $a) {
+        if(is_array($a) || is_object($a)){
+            print_r($a);
+        }else{
+            var_dump($a);
+        }
+    }
+    echo "</pre>";
+    exit;
+}
+
 // form提交或ajax post提交代码
 $code = isset($_REQUEST['code']) ? $_REQUEST['code'] : '';
 if(!empty($_POST)){    
@@ -70,13 +85,14 @@ $phpfunc = $phpfunc['internal'];
 <!-- code mirror -->
 <link rel="stylesheet" href="codemirror/lib/codemirror.css">
 <link rel="stylesheet" id="styleTheme" href="codemirror/theme/xq-light.css">
+<link rel="stylesheet" href="codemirror/addon/hint/show-hint.css">
 <style type="text/css">
      .CodeMirror {border: 1px solid #888; font-size:13px}
 </style>
 <script src="codemirror/lib/codemirror.js" type="text/javascript"></script>
-<script src="codemirror/mode/javascript/javascript.js"></script>
 <script src="codemirror/addon/selection/active-line.js"></script>
-<script src="codemirror/addon/edit/matchbrackets.js"></script>
+<script src="codemirror/mode/javascript/javascript.js"></script>
+<script src="codemirror/addon/hint/show-hint.js"></script>
 
 <script src="jq.js" type="text/javascript"></script>
 <!-- 复制 -->
@@ -240,11 +256,37 @@ jQuery.cookie = function(name, value, options){
 <div class="t" id='rs'></div>
 
 <script type="text/javascript">
+var phpfunc = <?php echo json_encode($phpfunc) ?>;
+
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true,
     styleActiveLine: true,
     matchBrackets: true,
-    theme: 'xq-light'
+    theme: 'xq-light',
+    hintOptions: {
+        completeSingle: false,
+        hint: function(cm){
+            var cursor = editor.getCursor();
+            var currentLine = editor.getLine(cursor.line);
+            var start = cursor.ch;
+            var end = start;
+            while (end < currentLine.length && /[\w$]+/.test(currentLine.charAt(end))) ++end;
+            while (start && /[\w$]+/.test(currentLine.charAt(start - 1))) --start;
+
+            var curWord = start != end && currentLine.slice(start, end),
+                curWordReg = curWord && '^' + curWord.split('').join('.*') + '.*';
+
+            return {from: CodeMirror.Pos(cursor.line, start), to: cm.getCursor(), list: !curWord ? [] : phpfunc.filter(function(value){
+
+                return value.match(curWordReg);
+            })};
+        },
+    },
+});
+editor.on('inputRead', (cm) => {
+    if (!cm.state.completeActive) {
+        cm.showHint();
+    }
 });
 editor.focus();
 </script>
@@ -253,23 +295,23 @@ editor.focus();
     var c = function(s){ console.log(s)};
 	
     var str = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">' +
-    "<html>" +
-    "<head>" +
-    "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>" +
-    "<title>Insert title here</title>" +
-    "<script src='jq.js' type='text/javascript'><\/script>" +
-	"<script>function c(){for(var i = 0;i < arguments.length;i++) console.log(arguments[i])}<\/script>"+
-    "\n<style>"+
-    "\n*{margin:0;padding:0;}"+
-    "\n</style>"+
-    "\n<\/head>" +
-    "\n<body>" +
-    "\n\n" +
-    "<script>" +
-    "\n\n" +
-    "<\/script>" +
-    "\n<\/body>" +
-    "\n<\/html>";
+    '<html>' +
+    '<head>' +
+    '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">' +
+    '<title>Insert title here</title>' +
+    '<script src="jq.js" type="text/javascript"><\/script>' +
+	'<script>function c(){for(var i = 0;i < arguments.length;i++) console.log(arguments[i])}<\/script>'+
+    '\n<style>'+
+    '\n*{margin:0;padding:0;}'+
+    '\n</style>'+
+    '\n<\/head>' +
+    '\n<body>' +
+    '\n\n' +
+    '<script>' +
+    '\n\n' +
+    '<\/script>' +
+    '\n<\/body>' +
+    '\n<\/html>';
     
     var env = 'php',// 当前编辑器处理什么代码
         lastfunc = '',
