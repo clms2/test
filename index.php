@@ -300,10 +300,17 @@ editor.focus();
             }
         });
 
+        function entityToString(entity){
+            var div = document.createElement('div');
+            div.innerHTML = entity;
+            var res = div.innerText || div.textContent;
+            return res;
+        }
+
         var clip = new ZeroClipboard.Client();
         clip.setHandCursor(true);   
         clip.addEventListener('mouseOver', function(client){
-            var s = $("#i").is(':visible') ? $("#i").contents().find('body').html() : $("#rs pre").html();
+            var s = $("#i").is(':visible') ? $("#i").contents().find('body').html() : entityToString($("#rs pre").html());
             clip.setText(s);
         });     
         clip.addEventListener('complete', function(client, text){
@@ -311,8 +318,6 @@ editor.focus();
         });
         clip.glue('copy');
 
-        // copyToClipboard('asd');
-        
         $("#func,.resulttype").change(function(){
             editor.focus();
             if(editor.getValue() != '') $("#quick").click();
