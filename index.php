@@ -66,45 +66,23 @@ $phpfunc = $phpfunc['internal'];
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
+
+<!-- code mirror -->
+<link rel="stylesheet" href="codemirror/lib/codemirror.css">
+<link rel="stylesheet" href="codemirror/theme/xq-light.css">
+<style type="text/css">
+     .CodeMirror {border: 1px solid #888; font-size:13px}
+</style>
+<script src="codemirror/lib/codemirror.js" type="text/javascript"></script>
+<script src="codemirror/mode/javascript/javascript.js"></script>
+<script src="codemirror/addon/selection/active-line.js"></script>
+<script src="codemirror/addon/edit/matchbrackets.js"></script>
+
 <script src="jq.js" type="text/javascript"></script>
 <!-- 复制 -->
 <script type="text/javascript" src="ZeroClipboard.js"></script>
 <script type="text/javascript">ZeroClipboard.setMoviePath( "ZeroClipboard.swf" );</script>
 <script type="text/javascript">
-//在光标处插入文字
-(function($){
-    $.fn.extend({
-        "insert": function(str){
-            //默认参数
-            var dthis = $(this)[0]; //将jQuery对象转换为DOM元素
-            //IE下
-            if (document.selection) {
-                $(dthis).focus(); //输入元素textara获取焦点
-                var fus = document.selection.createRange();//获取光标位置
-                fus.text = str; //在光标位置插入值
-                $(dthis).focus(); ///输入元素textara获取焦点
-            }
-            //火狐下标准	
-            else 
-                if (dthis.selectionStart || dthis.selectionStart == '0') {
-                    var start = dthis.selectionStart;
-                    var end = dthis.selectionEnd;
-                    var top = dthis.scrollTop;
-                    //以下这句，应该是在焦点之前，和焦点之后的位置，中间插入我们传入的值
-                    dthis.value = dthis.value.substring(0, start) + str + dthis.value.substring(end, dthis.value.length);
-                    //设置光标位置
-                    dthis.setSelectionRange((dthis.value.substring(0, start) + str).length, (dthis.value.substring(0, start) + str).length);
-                }
-                //在输入元素textara没有定位光标的情况
-                else {
-                    this.value += str;
-                    this.focus();
-                };
-            return $(this);
-        },
-    })
-})(jQuery)
-
 //cookie
 jQuery.cookie = function(name, value, options){
     if (typeof value != 'undefined') { // name and value given, set cookie 
@@ -145,201 +123,6 @@ jQuery.cookie = function(name, value, options){
         return cookieValue;
     }
 };
-//json
-hasOwn = Object.prototype.hasOwnProperty;
-$.toJSON = typeof JSON === 'object' && JSON.stringify ? JSON.stringify : function(o){
-    if (o === null) {
-        return 'null';
-    }
-    
-    var pairs, k, name, val, type = $.type(o);
-    
-    if (type === 'undefined') {
-        return undefined;
-    }
-    
-    // Also covers instantiated Number and Boolean objects,
-    // which are typeof 'object' but thanks to $.type, we
-    // catch them here. I don't know whether it is right
-    // or wrong that instantiated primitives are not
-    // exported to JSON as an {"object":..}.
-    // We choose this path because that's what the browsers did.
-    if (type === 'number' || type === 'boolean') {
-        return String(o);
-    }
-    if (type === 'string') {
-        return $.quoteString(o);
-    }
-    if (typeof o.toJSON === 'function') {
-        return $.toJSON(o.toJSON());
-    }
-    if (type === 'date') {
-        var month = o.getUTCMonth() + 1, day = o.getUTCDate(), year = o.getUTCFullYear(), hours = o.getUTCHours(), minutes = o.getUTCMinutes(), seconds = o.getUTCSeconds(), milli = o.getUTCMilliseconds();
-        
-        if (month < 10) {
-            month = '0' + month;
-        }
-        if (day < 10) {
-            day = '0' + day;
-        }
-        if (hours < 10) {
-            hours = '0' + hours;
-        }
-        if (minutes < 10) {
-            minutes = '0' + minutes;
-        }
-        if (seconds < 10) {
-            seconds = '0' + seconds;
-        }
-        if (milli < 100) {
-            milli = '0' + milli;
-        }
-        if (milli < 10) {
-            milli = '0' + milli;
-        }
-        return '"' + year + '-' + month + '-' + day + 'T' +
-        hours +
-        ':' +
-        minutes +
-        ':' +
-        seconds +
-        '.' +
-        milli +
-        'Z"';
-    }
-    
-    pairs = [];
-    
-    if ($.isArray(o)) {
-        for (k = 0; k < o.length; k++) {
-            pairs.push($.toJSON(o[k]) || 'null');
-        }
-        return '[' + pairs.join(',') + ']';
-    }
-    
-    // Any other object (plain object, RegExp, ..)
-    // Need to do typeof instead of $.type, because we also
-    // want to catch non-plain objects.
-    if (typeof o === 'object') {
-        for (k in o) {
-            // Only include own properties,
-            // Filter out inherited prototypes
-            if (hasOwn.call(o, k)) {
-                // Keys must be numerical or string. Skip others
-                type = typeof k;
-                if (type === 'number') {
-                    name = '"' + k + '"';
-                }
-                else 
-                    if (type === 'string') {
-                        name = $.quoteString(k);
-                    }
-                    else {
-                        continue;
-                    }
-                type = typeof o[k];
-                
-                // Invalid values like these return undefined
-                // from toJSON, however those object members
-                // shouldn't be included in the JSON string at all.
-                if (type !== 'function' && type !== 'undefined') {
-                    val = $.toJSON(o[k]);
-                    pairs.push(name + ':' + val);
-                }
-            }
-        }
-        return '{' + pairs.join(',') + '}';
-    }
-};
-
-
-// 字符串占网页宽高
-function textSize(fontSize, text) {
-    var span = document.createElement("span");
-    var result = {};
-    result.width = span.offsetWidth;
-    result.height = span.offsetWidth; 
-    span.style.visibility = "hidden";
-    if(fontSize.indexOf('px') === -1) fontSize += 'px';
-    span.style.fontSize = fontSize; 
-    document.body.appendChild(span);
-    if (typeof span.textContent != "undefined")
-        span.textContent = text;
-    else span.innerText = text;
-    result.width = span.offsetWidth - result.width;
-    result.height = span.offsetHeight - result.height;
-    span.parentNode.removeChild(span);
-    return result;
-}
-
- /**
- * 获取光标在输入框中的位置
- * @param inpObj 框Id/document.getElementById对象
- * @return int
- */
-function getCursorPos(inpObj){
-    var inpObj = typeof inpObj == 'object' ? inpObj : document.getElementById(inpObj);
-    if(navigator.userAgent.indexOf("MSIE") > -1) { // IE
-        var range = document.selection.createRange();
-        range.text = '';
-        range.setEndPoint('StartToStart',inpObj.createTextRange());
-        return range.text.length;
-    } else {
-        return inpObj.selectionEnd;
-    }
-}
-
-/**
- * php substr_count的js版
- * @param  {string} str    
- * @param  {string} search 
- * @param  {int} total  不需要传该参数
- * @return {int}        
- */
-function substr_count(str, search, total){
-    var total = total || 0,
-        index = str.indexOf(search);
-
-    if(index === -1) return total;
-
-    return substr_count(str.substr(++index), search, ++total);
-}
-
-/**
- * 选择文本
- * @textbox : 要操作的文本对象
- * @startIndex : 要选择文本中第一个字符的索引
- * @stopIndex : 要选择文本最后一个字符之后的索引
- */
-function selectText(textbox, startIndex, stopIndex){
-    if(typeof textbox == 'string') textbox = document.getElementById(textbox);
-    if(textbox.setSelectionRange){
-        textbox.setSelectionRange(startIndex,stopIndex);
-    }else if(textbox.createTextRange){
-        var range=textbox.createTextRange();
-        range.collapse(true);
-        range.moveStart('character',startIndex);
-        range.moveEnd('character',stopIndex-startIndex);
-        range.select();
-    }
-    textbox.focus();
-}
-
-
-/**
- * 获取输入框选中的文本
- * @param  {string/object} editor #id 或者document.getElementById对象
- * @return {string}
- */
-function getSelectText(editor) {
-    if (!editor) return; 
-    if(typeof editor == 'string') editor = document.getElementById(editor);
-    editor.focus();
-    if (editor.document && editor.document.selection)
-        return editor.document.selection.createRange().text; 
-    else if ("selectionStart" in editor)
-        return editor.value.substring(editor.selectionStart, editor.selectionEnd); 
-}
 
 </script>
 <style>
@@ -372,9 +155,10 @@ function getSelectText(editor) {
     <li></li>
 </ul>
 <form action="" method="post" name="form1" id="form1" target="i">
-	<!-- 代码框 -->
-	<textarea class="t" name="code" id='code'></textarea>
-    <!-- <div contentEditable="true" class="t" name="code" id='code'></div> -->
+    <div style="width:1000px;margin-left: 150px;">
+    	<!-- 代码框 -->
+    	<textarea class="t" name="code" id='code'></textarea>
+    </div>
 	<br />
 	<!-- 按钮 -->
 	<div class="input">
@@ -397,9 +181,19 @@ function getSelectText(editor) {
 <!-- 结果框 -->
 <iframe name="i" src="" id='i' class="t"></iframe>
 <div class="t" id='rs'></div>
+
+<script type="text/javascript">
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    lineNumbers: true,
+    styleActiveLine: true,
+    matchBrackets: true,
+    theme: 'xq-light'
+});
+editor.focus();
+</script>
+
 <script type="text/javascript">
     var c = function(s){ console.log(s)};
-	$("#code").focus();
 	
     var str = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">' +
     "<html>" +
@@ -433,84 +227,17 @@ function getSelectText(editor) {
         phpfunc = <?php echo json_encode($phpfunc);?>,// php 内置函数用于函数提示功能
         phpfunc_remind_count = $("#func_list li").length,// 下拉显示函数个数
         func_list = $("#func_list"),// 函数提示div
-        code = $("#code"),
+        code = $(".CodeMirror textarea"),
         codeInfo = {'width' : code.width(), 'height' : code.height(), 'lineH' : parseFloat(code.css('line-height')), 'fontsize' : code.css('font-size'), 'offset': code.offset()};
-    // 阻止firefox ctrl+r刷新页面
-    // $(document).keypress(function (e) {
-    //     var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
-    //     if (e.ctrlKey) {
-    //         if (k == 114) {
-    //             e.preventDefault();
-    //         }
-    //     }
-    // });
-
-    /**
-     * 获取光标距离输入框左侧和顶部的距离，用于动态定位代码提示的div
-     * @param  {object} domObj dom 对象
-     * @param  {int} pos    光标位置
-     * @return {object}     {top: 33, left:5}
-     */
-    function getCursorAbsolutePos(domObj, pos){
-        var _top = 0,
-            _left = 0;
-
-        // 选中当前光标到起点的文本
-        selectText(domObj, 0, pos);
-        // 获得选中文本
-        txt = getSelectText(domObj);
-        // 获取选中文本宽高
-        var sizeInfo = textSize(codeInfo.fontsize, txt),
-            rowNum = 0,
-            thisRow = '';
-        // 统计光标到起点的字符串行数，默认一个\n一行，但如果该行width超过输入框width，那么就以多行计算
-        for(var j = 0, arr = txt.split('\n'),len = arr.length; j < len; j++){
-            rowNum += Math.ceil(textSize(codeInfo.fontsize, arr[j]).width/codeInfo.width) || 1;
-            // 保存下最后一行 也就是光标所在行
-            if(j == len - 1){
-                thisRow = arr[j];
-            }
-        }
-        // 那么距离顶部的距离就是:
-        _top = rowNum * codeInfo.lineH;
-        // 距左侧距离就是：
-        _left = textSize(codeInfo.fontsize, thisRow).width;
-
-        return {top: _top + codeInfo.offset.top, left: _left + codeInfo.offset.left};
-    }
-
-    /**
-     * 模糊匹配，需要数组phpfunc
-     * @param  {string} wd 输入的字
-     * @return {array}   
-     */
-    function search_txt(wd){
-        var ret = [], count = phpfunc_remind_count || 10;
-        if(typeof phpfunc == 'undefined') return ret;
-        var reg = '^'+wd.split('').join('.*')+'.*',
-            func,
-            i = 0;
-        // todo.. 可优化：
-        // 不用遍历全部 似乎 按首字母分类 在特定首字母类别下进行检索效率会高
-        for(func of phpfunc){
-            if(!!func.match(new RegExp(reg))){
-              ret.push(func);
-              if(++i > count) break;
-            }
-        }
-
-        return ret;
-    }
 
     $(document).ready(function(){
         $("#init").click(function(){
             init();
         });
         $("#quick").click(function(){
-            quick_func($("#code").val());
+            quick_func(editor.getValue());
         });
-        // 快捷键
-        code.keypress(function(e){
+        $(document).on('keypress', '.CodeMirror textarea', function(e) {
             var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
             if (e.ctrlKey) {
                 //enter
@@ -531,144 +258,9 @@ function getSelectText(editor) {
                 }
                 //q
                 if (k == 113) {
-                	$("#quick").click();
+                    $("#quick").click();
                 }
             }
-            //tab 加\t
-            if (k == 9) {
-                $(this).insert("    ");
-                e.preventDefault();
-            }
-        }).keyup(function(e){
-            // 实现输入</自动补完标签功能，以及类似编辑器的函数提示功能
-            // todo.. 加个延迟时间，防止输入过快程序会未捕获到输入的文本
-            var pos,// 光标位置
-                divpos, // 函数提示div的位置
-                curwd,// 本次输入内容
-                txt,// 选中文本
-                temp,// 临时变量
-                list,// 存模糊匹配结果数组
-                cursorSetted = false// 是否已setCursor过
-            // 获得当前光标位置
-            pos = getCursorPos(this);
-            if(pos == lastpos || pos === 0){
-                // c('pos == lastpos || pos === 0 return')
-                return;
-            }
-            lastpos = pos;
-
-            // 方向键 左右 ctrl键不处理
-            var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
-            if(k == 37 || k == 39 || e.ctrlKey){
-                // c('keycode == 37 || 39 return')
-                return;
-            }
-
-            // 获得光标位置往前一位的字母，即刚输入的字母
-            // todo.. 可优化在keyup的时候赋值给lastwd
-            selectText(this, pos-1, pos);
-            curwd = getSelectText(this);
-            // 代码提示功能：
-            // 通过判断出输入的是否为函数字母开头进行提示。
-            do{
-                if(env == 'html') break;
-                // 匹配到非字母输入 也就是非函数输入，可能为空格、引号、$等
-                if(/[^a-zA-Z]/.test(curwd)){
-                    // 如果还没开始忽略 那么就是第一次匹配
-                    if(!ignore_start) {
-                        // c('ignore_start:true')
-                        ignore_start = true;
-                        // 开始忽略需要做:
-                        func_start = false;
-                        ignore_end = false;
-                        ignore_real_end = false;
-                    }else{
-                        // 如果已经开始忽略 那么该匹配就是第二次匹配到非函数输入了
-                        // c('ignore_end:true')
-                        ignore_end = true;
-                        // 忽略结束需要做:
-                        // // 问题?.,,
-                        ignore_start = false;
-                    }
-                    // 如果已经开始匹配函数 那么就是匹配结束
-                    if(func_start){
-                        // c('func_end:true')
-                        func_end = true;
-                        // 函数结束需要做：
-                        ignore_start = false;
-                        ignore_end = true;
-                        ignore_real_end = true;
-                        func_start = false;
-                    }
-                    // 非函数输入都是清空words
-                    words = '';
-                }else if(ignore_end){
-                    ignore_real_end = true;
-                }
-                if(ignore_real_end && !func_start){
-                    // 开始拼接函数标志
-                    // c('func_start:true')
-                    func_start = true;
-                    ignore_start = false;
-                }
-                // 函数提示功能 匹配开始
-                if(func_start && !func_end){
-                    // c('concat..')
-                    words += curwd;
-                }
-                if(words == '') break;
-                list = search_txt(words);
-                temp = list.length;
-                if(temp == 0) break;
-                divpos = getCursorAbsolutePos(this, pos);
-                // func_list.css({left: divpos.left, top: divpos.top, display: 'block'}).children('li').hide().filter(':lt('+temp+')').show().each(function(i){
-                //     $(this).text(list[i]);
-                // });
-            }while(false);
-            // c('curwd:'+curwd+'|words:'+words+'|ignore_start:'+ignore_start+'|ignore_end:'+ignore_end+'|func_start:'+func_start+'|func_end:'+func_end);
-            
-            // 自动补完标签功能
-            do{
-                if(env == 'php') break;
-                // 第一次输入跳过
-                if(lastwd == '') break;
-                // 判断这次输入的和上次输入的拼接起来的字符串是否为</
-                temp = lastwd + curwd;
-                if(temp !== '</') break;
-
-                // 获得当前光标到起点的所有文本
-                selectText(this, 0, pos);
-                txt = getSelectText(this);
-
-                // 从后往前检索起始标签位置，不要刚输入的<
-                temp = txt.lastIndexOf('<', txt.length - 3);
-                if(temp == -1) break;
-
-                // 截取后面的文本以获取标签
-                temp = txt.substr(temp);
-                var index = temp.indexOf(' ');
-                if(index == -1) index = temp.indexOf('>');
-                // 跳过未找到结尾>的
-                if(index == -1) break;
-
-                // 这个就是tag啦
-                var tag = temp.substring(1, index);
-                // optional todo ..可以再判断下这个tag是否合法tag
-                // 补完标签
-                tag = tag + '>';
-                setCursor(this, pos);
-                $(this).insert(tag);
-                setCursor(this, pos + tag.length);
-                cursorSetted = true;
-            }while(false);
-            // 记住这次输入的字母
-            lastwd = curwd;
-
-            // 取消选择
-            if(!cursorSetted){
-                setCursor(this, pos);
-            }
-
         });
         $("#often_func,#desc").keypress(function(e){
         	var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
@@ -722,11 +314,11 @@ function getSelectText(editor) {
         // copyToClipboard('asd');
         
         $("#func,.resulttype").change(function(){
-            $("#code").focus();
-            if($("#code").val() != '') $("#quick").click();
+            editor.focus();
+            if(editor.getValue() != '') $("#quick").click();
         });
         $('#form1').submit(function(){
-            if ($("#code").val().indexOf('<html>') < 0) {
+            if (editor.getValue().indexOf('<html>') < 0) {
                 getRs();
                 return false;
             }
@@ -735,7 +327,6 @@ function getSelectText(editor) {
     		}
             show_result_div('html');
         })
-        $("#code").focus();
     
         $("#code,#rs,#i,input[type=text]").hover(function(){
             $(this).addClass('shadow');
@@ -750,11 +341,11 @@ function getSelectText(editor) {
 
     function qrcode(){
         show_result_div('php');
-        $("#rs").html("<img src='?qrcode=1&code="+encodeURIComponent($("#code").val())+"'>");
+        $("#rs").html("<img src='?qrcode=1&code="+encodeURIComponent(editor.getValue())+"'>");
     }
     
     function autosubmit(){
-        if ($("#code").val().indexOf('<html>') > 0) {
+        if (editor.getValue().indexOf('<html>') > 0) {
             $("#form1").submit();
         }
         else {
@@ -766,14 +357,14 @@ function getSelectText(editor) {
     function getRs(){
         show_result_div('php');
         $.post('index.php', {
-            code: $('#code').val()
+            code: editor.getValue()
         }, function(data){
             $('#rs').html('<pre>' + data + '</pre>');
         });
     }
     
     function setcookie(name,obj_val){
-    	$.cookie(name,$.toJSON(obj_val),{path:'/',expires:<?php echo $expire_day?>});
+    	$.cookie(name,JSON.stringify(obj_val),{path:'/',expires:<?php echo $expire_day?>});
     }
     
     function quick_func(code){
@@ -808,23 +399,21 @@ function getSelectText(editor) {
             default:
                 tempstr = type + left + func + left2 + code + right2 + right + ';';
         }
-        $("#code").val(tempstr);
+        editor.setValue(tempstr);
         $("#form1").submit();
     }
     
     // 清空/初始化html
     function init(){
-        var code = $("#code"),
-            html = code.val();
+        var html = editor.getValue();
+        
         if (html == '') {
             env = 'html';
-            code.val(str);
-            setCursor(code[0], str.indexOf('/body') - 12);
-            // code.html('<pre>'+str+'</pre>');
+            editor.setValue(str);
         }
         else {
             env = 'php';
-            code.val('').focus();
+            editor.setValue('');
         }
         return;
     }
@@ -865,18 +454,6 @@ function getSelectText(editor) {
         return count;
     }
     
-    // 定位光标位置
-    function setCursor(obj, position){
-        if ($.browser.msie) {
-            var range = obj.createTextRange();
-            range.move("character", position);
-            range.select();
-        }
-        else {
-        	obj.setSelectionRange(position, position);
-        	obj.focus();
-        }
-    }
     function change_select(value){
         var o = eval("("+$.cookie('often_func')+")"),option = '',k;
         for(k in o){
