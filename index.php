@@ -75,6 +75,8 @@ foreach ( $type as $val ) {
 
 $phpfunc = get_defined_functions();
 $phpfunc = $phpfunc['internal'];
+$extraWord = ['return', 'function'];
+$phpfunc = array_merge($extraWord, $phpfunc);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -90,6 +92,7 @@ $phpfunc = $phpfunc['internal'];
      .CodeMirror {border: 1px solid #888; font-size:13px}
 </style>
 <script src="codemirror/lib/codemirror.js" type="text/javascript"></script>
+<script src="codemirror/lib/util/formatting.js"></script>
 <script src="codemirror/addon/selection/active-line.js"></script>
 <script src="codemirror/mode/javascript/javascript.js"></script>
 <script src="codemirror/addon/hint/show-hint.js"></script>
@@ -143,12 +146,13 @@ jQuery.cookie = function(name, value, options){
 </script>
 <style>
 *{margin: 0;padding: 0;list-style: none}
-.t {text-align: left;font-size: 13px;margin-left: 10px;width: 1000px;height: 220px;margin-left: 150px;}
+body{width: 1300px;margin: 0 auto;margin-top: 5px;}
+.t {text-align: left;font-size: 13px;height: 220px;}
 .shadow {box-shadow: 1px 0 2px #0f0;}
 #code {margin-top: 30px;}
 #rs {line-height: 16px;border: 1px solid #888;}
 #i {display: none;border: 1px solid #888;}
-.input {margin-left: 150px;margin-top: 10px;}
+.input {margin-top: 10px;}
 .input input {margin-top: 5px;outline: none;}
 
 #func_list{display: none;position: absolute;box-shadow: 1px 1px 3px #ededed; border: 1px solid #ccc;}
@@ -171,7 +175,7 @@ jQuery.cookie = function(name, value, options){
     <li></li>
 </ul>
 <form action="" method="post" name="form1" id="form1" target="i">
-    <div style="width:1000px;margin-left: 150px;">
+    <div>
     	<!-- 代码框 -->
     	<textarea class="t" name="code" id='code'></textarea>
     </div>
@@ -189,6 +193,7 @@ jQuery.cookie = function(name, value, options){
 		<div class="often">
 			<input type="text" id="often_func" placeholder="常用函数" autocomplete="off" /> <input type="text" id="desc" placeholder="描述(可选)" /> <input type="button" id="dftfunc" value="默认" /> <input type="button" id="addfunc" value="添加" /> <input type="button" id="delfunc" value="删除" />
             <input type="button" id="copy" value="复制结果" />
+            <input type="button" id="autoFormat" value="格式化(ctrl+f)">
             变更主题
             <select id="changeTheme">
                 <option value="">default</option>
@@ -262,6 +267,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true,
     styleActiveLine: true,
     matchBrackets: true,
+    indentUnit: 4,
     theme: 'xq-light',
     hintOptions: {
         completeSingle: false,
@@ -283,11 +289,25 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         },
     },
 });
+// 函数提示
 editor.on('inputRead', (cm) => {
     if (!cm.state.completeActive) {
         cm.showHint();
     }
 });
+// 选中区域格式化/没选的话则全部格式化
+function autoFormat() {
+    var range = { from: editor.getCursor(true), to: editor.getCursor(false) };
+    if (range.from === range.to) {
+        CodeMirror.commands["selectAll"](editor);
+        range.to = editor.getCursor(false);
+    }
+    editor.autoFormatRange(range.from, range.to);
+}
+$("#autoFormat").click(function() {
+    autoFormat();
+});
+
 editor.focus();
 </script>
 
@@ -338,6 +358,7 @@ editor.focus();
         });
         $(document).on('keypress', '.CodeMirror textarea', function(e) {
             var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
+            
             if (e.ctrlKey) {
                 //enter
                 if (k == 13) {
@@ -358,6 +379,11 @@ editor.focus();
                 //q
                 if (k == 113) {
                     $("#quick").click();
+                }
+                // f
+                if (k == 102) {
+                    autoFormat();
+                    e.preventDefault();
                 }
             }
         });
