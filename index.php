@@ -147,7 +147,7 @@ jQuery.cookie = function(name, value, options){
 <style>
 *{margin: 0;padding: 0;list-style: none}
 body{width: 1300px;margin: 0 auto;margin-top: 5px;}
-.t {text-align: left;font-size: 13px;height: 220px;}
+.t {text-align: left;font-size: 13px;height: 220px;width: 100%;}
 .shadow {box-shadow: 1px 0 2px #0f0;}
 #code {margin-top: 30px;}
 #rs {line-height: 16px;border: 1px solid #888;}
