@@ -356,7 +356,7 @@ editor.focus();
         $("#quick").click(function(){
             quick_func(editor.getValue());
         });
-        $(document).on('keypress', '.CodeMirror textarea', function(e) {
+        $(document).on('keydown', '.CodeMirror textarea', function(e) {
             var k = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
             
             if (e.ctrlKey) {
@@ -367,21 +367,21 @@ editor.focus();
                     e.preventDefault();
                 }
                 // e
-                if(k == 101){
+                if(k == 69){
                     qrcode();
                     e.preventDefault();
                 }
                 //r
-                if (k == 114) {
+                if (k == 82) {
                     init();
                     e.preventDefault();
                 }
                 //q
-                if (k == 113) {
+                if (k == 81) {
                     $("#quick").click();
                 }
                 // f
-                if (k == 102) {
+                if (k == 70) {
                     autoFormat();
                     e.preventDefault();
                 }
